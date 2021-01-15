@@ -1,13 +1,12 @@
-package com.bludbird.pipit;
+package com.bluebird.pipit;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class PipitApplication {
+public class PipitApiApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(PipitApplication.class, args);
+		SpringApplication.run(PipitApiApplication.class, args);
 	}
-
 }

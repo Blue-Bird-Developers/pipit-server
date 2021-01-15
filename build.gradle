@@ -1,46 +1,37 @@
-plugins {
-    id "org.springframework.boot" version "2.4.1"
-    id "io.spring.dependency-management" version "1.0.10.RELEASE"
-    id "java"
-    id "checkstyle"
-}
+buildscript {
+    ext {
+        springBootVersion = "2.4.1"
+    }
 
-group = "com.bludbird"
-version = "0.0.1-SNAPSHOT"
+    repositories {
+        mavenCentral()
+    }
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
-}
-
-compileJava.options.encoding = "UTF-8"
-compileTestJava.options.encoding = "UTF-8"
-
-configurations {
-    compileOnly {
-        extendsFrom annotationProcessor
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath "io.spring.gradle:dependency-management-plugin:1.0.10.RELEASE"
     }
 }
 
-repositories {
-    mavenCentral()
+plugins {
+    id "java"
 }
 
-dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-web")
+group = "com.bluebird"
+version = "0.0.1-SNAPSHOT"
 
-    compileOnly("org.projectlombok:lombok")
-    annotationProcessor("org.projectlombok:lombok")
-
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
+allprojects {
+    apply plugin: "idea"
 }
 
-checkstyle {
-    configFile = file("${project.rootDir}/rule/naver-checkstyle-rules.xml")
-    configProperties = [config_loc: ".."]
-    toolVersion = "8.24"
-}
+subprojects {
+    apply plugin: "java"
+    apply plugin: "org.springframework.boot"
+    apply plugin: "io.spring.dependency-management"
 
-test {
-    useJUnitPlatform()
+    sourceCompatibility = 11
+
+    repositories {
+        mavenCentral()
+    }
 }

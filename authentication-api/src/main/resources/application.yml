@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: authentication-api
+  profiles:
+    active: local
+  banner:
+    location: classpath:banner/banner.txt
