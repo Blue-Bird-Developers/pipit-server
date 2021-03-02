@@ -1,4 +1,4 @@
 rootProject.name = 'pipit'
 include 'pipit-api'
 include 'authentication-api'
-
+include 'support'
