@@ -1,12 +1,8 @@
 package com.bluebird.pipit.config;
 
 import com.bluebird.pipit.security.CustomUserDetailsService;
-import com.bluebird.pipit.security.RestAuthenticationEntryPoint;
-import com.bluebird.pipit.security.TokenAuthenticationFilter;
-import com.bluebird.pipit.security.oauth2.CustomOAuth2UserService;
-import com.bluebird.pipit.security.oauth2.HttpCookieOAuth2AuthorizationRequestRepository;
-import com.bluebird.pipit.security.oauth2.OAuth2AuthenticationFailureHandler;
-import com.bluebird.pipit.security.oauth2.OAuth2AuthenticationSuccessHandler;
+import com.bluebird.pipit.security.JwtAuthenticationEntryPoint;
+import com.bluebird.pipit.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,46 +26,34 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 )
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private CustomUserDetailsService customUserDetailsService;
-	private CustomOAuth2UserService customOAuth2UserService;
-	private OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
-	private OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
-	private HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
+	private JwtAuthenticationEntryPoint unauthorizedHandler;
 
-    public SecurityConfig(CustomUserDetailsService customUserDetailsService, CustomOAuth2UserService customOAuth2UserService) {
+    public SecurityConfig(CustomUserDetailsService customUserDetailsService, JwtAuthenticationEntryPoint unauthorizedHandler) {
         this.customUserDetailsService = customUserDetailsService;
-        this.customOAuth2UserService = customOAuth2UserService;
-        this.oAuth2AuthenticationSuccessHandler = oAuth2AuthenticationSuccessHandler;
-        this.oAuth2AuthenticationFailureHandler = oAuth2AuthenticationFailureHandler;
-        this.httpCookieOAuth2AuthorizationRequestRepository = httpCookieOAuth2AuthorizationRequestRepository;
+        this.unauthorizedHandler = unauthorizedHandler;
     }
 
-    @Bean
-    public TokenAuthenticationFilter tokenAuthenticationFilter() {
-        return new TokenAuthenticationFilter();
-    }
+	@Bean
+	public JwtAuthenticationFilter jwtAuthenticationFilter() {
+		return new JwtAuthenticationFilter();
+	}
 
-    @Bean
-    public HttpCookieOAuth2AuthorizationRequestRepository cookieAuthorizationRequestRepository() {
-        //rest api 서버는 stateless 이므로 cookie에 저장하기 위한 용도
-        return new HttpCookieOAuth2AuthorizationRequestRepository();
-    }
+	@Override
+	public void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
+		authenticationManagerBuilder
+			.userDetailsService(customUserDetailsService)
+			.passwordEncoder(passwordEncoder());
+	}
 
-    @Override
-    public void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
-        authenticationManagerBuilder
-                .userDetailsService(customUserDetailsService)
-                .passwordEncoder(passwordEncoder());
-    }
+	@Bean(BeanIds.AUTHENTICATION_MANAGER)
+	@Override
+	public AuthenticationManager authenticationManagerBean() throws Exception {
+		return super.authenticationManagerBean();
+	}
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    }
-
-    @Bean(BeanIds.AUTHENTICATION_MANAGER)
-    @Override
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        return super.authenticationManagerBean();
     }
 
     @Override
@@ -86,35 +70,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .disable()
                 .httpBasic()
                     .disable()
-                .exceptionHandling()
-                    .authenticationEntryPoint(new RestAuthenticationEntryPoint())
-                    .and()
+				.exceptionHandling()
+					.authenticationEntryPoint(unauthorizedHandler)
+					.and()
                 .authorizeRequests()
                     .antMatchers("/",
                             "/error",
                             "/favicon.ico",
                             "/**/*.png", "/**/*.gif", "/**/*.svg", "/**/*.jpg", "/**/*.html", "/**/*.css", "/**/*.js")
                         .permitAll()
-                    .antMatchers("/auth/**", "/oauth2/**")
+                    .antMatchers("/api/auth/**")
                         .permitAll()
                     .anyRequest()
                         .authenticated()
-                    .and()
-                .oauth2Login()
-                    .authorizationEndpoint()
-                        .baseUri("/oauth2/authorize")
-                        .authorizationRequestRepository(cookieAuthorizationRequestRepository())
-                        .and()
-                    .redirectionEndpoint()
-                        .baseUri("/oauth2/callback/*")
-                        .and()
-                    .userInfoEndpoint()
-                        .userService(customOAuth2UserService)
-                        .and()
-                    .successHandler(oAuth2AuthenticationSuccessHandler)
-                    .failureHandler(oAuth2AuthenticationFailureHandler);
+                    .and();
 
         // Custom Token을 기본 authentication Filter 앞에 위치시킴
-        http.addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
     }
 }

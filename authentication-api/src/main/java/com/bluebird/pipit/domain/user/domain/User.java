@@ -1,21 +1,37 @@
 package com.bluebird.pipit.domain.user.domain;
 
+import com.bluebird.pipit.global.audit.DateAudit;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sun.istack.NotNull;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 @Entity
 @Table(name = "users", uniqueConstraints = {
-        @UniqueConstraint(columnNames = "email")
+		@UniqueConstraint(columnNames = {
+			"username"
+		}),
+		@UniqueConstraint(columnNames = {
+			"email"
+		}),
 })
-public class User {
+public class User extends DateAudit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
     private String name;
+
+	private String username;
 
     @Column(nullable = false)
     private String email;
@@ -28,73 +44,56 @@ public class User {
     @JsonIgnore
     private String password;
 
-    @NotNull
+	@NotNull
     @Enumerated(EnumType.STRING)
     private AuthProvider provider;
 
     private String providerId;
 
-    public Long getId() {
-        return id;
-    }
+	public User(String name, String username, String email, String password) {
+		this.name = name;
+		this.username = username;
+		this.email = email;
+		this.password = password;
+	}
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+	public Long getId() {
+		return id;
+	}
 
-    public String getName() {
-        return name;
-    }
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	public String getUsername() {
+		return username;
+	}
 
-    public String getEmail() {
-        return email;
-    }
+	public void setUsername(String username) {
+		this.username = username;
+	}
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public String getImageUrl() {
-        return imageUrl;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
+	public String getEmail() {
+		return email;
+	}
 
-    public Boolean getEmailVerified() {
-        return emailVerified;
-    }
+	public void setEmail(String email) {
+		this.email = email;
+	}
 
-    public void setEmailVerified(Boolean emailVerified) {
-        this.emailVerified = emailVerified;
-    }
+	public String getPassword() {
+		return password;
+	}
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public AuthProvider getProvider() {
-        return provider;
-    }
-
-    public void setProvider(AuthProvider provider) {
-        this.provider = provider;
-    }
-
-    public String getProviderId() {
-        return providerId;
-    }
-
-    public void setProviderId(String providerId) {
-        this.providerId = providerId;
-    }
+	public void setPassword(String password) {
+		this.password = password;
+	}
 }

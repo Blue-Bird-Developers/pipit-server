@@ -1,8 +1,8 @@
 package com.bluebird.pipit.security;
 
-import com.dsc.rankmakers.domain.user.dao.UserRepository;
-import com.dsc.rankmakers.domain.user.domain.User;
-import com.dsc.rankmakers.global.exception.ResourceNotFoundException;
+import com.bluebird.pipit.domain.user.dao.UserRepository;
+import com.bluebird.pipit.domain.user.domain.User;
+import com.bluebird.pipit.global.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -14,15 +14,15 @@ import org.springframework.transaction.annotation.Transactional;
 public class CustomUserDetailsService implements UserDetailsService {
 
     @Autowired
-    UserRepository userRepository;
+	UserRepository userRepository;
 
     @Override
     @Transactional
-    public UserDetails loadUserByUsername(String email)
+    public UserDetails loadUserByUsername(String usernameOrEmail)
             throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail)
                 .orElseThrow(() ->
-                        new UsernameNotFoundException("User not found with email: " + email)
+                        new UsernameNotFoundException("User not found with username or email: " + usernameOrEmail)
                 );
         return UserPrincipal.create(user);
     }
