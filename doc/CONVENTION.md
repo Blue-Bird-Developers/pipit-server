@@ -18,7 +18,7 @@
 
 #### List, Set, Map 사용 시 Null-Safe 처리
 - 기본적으로 로직 내에서는 `null` 대신 `empty()` 를 활용한다.
-- Nullable 속성일 경우 해당 필드에 `@Nullable` 을 명시하고 `getter` 를 구현하여 공통적으로 Null 을 방지합니다.
+- Nullable 속성일 경우 해당 필드에 `@Nullable` 을 명시하고 `getter` 를 구현하여 공통적으로 Null 을 방지한다.
 - 외부에 (public) List, Set, Map 필드를 제공한다면 `unmodifiableList` 를 활용한다.
 
 ```java
