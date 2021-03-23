@@ -1,6 +1,6 @@
-package com.bluebird.pipit.domain.user.dao;
+package com.bluebird.pipit.user.repository;
 
-import com.bluebird.pipit.domain.user.domain.User;
+import com.bluebird.pipit.user.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

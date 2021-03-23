@@ -1,4 +1,4 @@
-package com.bluebird.pipit.global.audit;
+package com.bluebird.pipit.user.domain.audit;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.springframework.data.annotation.CreatedDate;

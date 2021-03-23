@@ -1,5 +1,6 @@
 package com.bluebird.pipit.security;
 
+import com.bluebird.pipit.config.SecurityProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -7,43 +8,46 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.SignatureException;
 import io.jsonwebtoken.UnsupportedJwtException;
+import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
 
+@AllArgsConstructor
 @Component
 public class JwtTokenProvider {
 
 	private static final Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
+	private SecurityProperties securityProperties;
 
-	@Value("${app.jwtSecret}")
-	private String jwtSecret;
+	public String generateAccessToken(Authentication authentication) {
+		return generateToken((UserPrincipal) authentication.getPrincipal(),
+			securityProperties.getAccessTokenValidSecond());
+	}
 
-	@Value("${app.jwtExpirationInMs}")
-	private int jwtExpirationInMs;
+	public String generateRefreshToken(Authentication authentication) {
+		return generateToken((UserPrincipal) authentication.getPrincipal(),
+			securityProperties.getRefreshTokenValidSecond());
+	}
 
-	public String generateToken(Authentication authentication) {
-
-		UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-
+	public String generateToken(UserPrincipal userPrincipal, long expireTime) {
 		Date now = new Date();
-		Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
+		Date expiryDate = new Date(System.currentTimeMillis() + expireTime);
 
 		return Jwts.builder()
 			.setSubject(Long.toString(userPrincipal.getId()))
-			.setIssuedAt(new Date())
+			.setIssuedAt(new Date(System.currentTimeMillis()))
 			.setExpiration(expiryDate)
-			.signWith(SignatureAlgorithm.HS512, jwtSecret)
+			.signWith(SignatureAlgorithm.HS512, securityProperties.getJwtSecret())
 			.compact();
 	}
 
 	public Long getUserIdFromJWT(String token) {
 		Claims claims = Jwts.parser()
-			.setSigningKey(jwtSecret)
+			.setSigningKey(securityProperties.getJwtSecret())
 			.parseClaimsJws(token)
 			.getBody();
 
@@ -52,7 +56,7 @@ public class JwtTokenProvider {
 
 	public boolean validateToken(String authToken) {
 		try {
-			Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(authToken);
+			Jwts.parser().setSigningKey(securityProperties.getJwtSecret()).parseClaimsJws(authToken);
 			return true;
 		} catch (SignatureException ex) {
 			logger.error("Invalid JWT signature");

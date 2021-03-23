@@ -1,54 +1,57 @@
-package com.bluebird.pipit.domain.user.domain;
+package com.bluebird.pipit.user.domain;
 
-import com.bluebird.pipit.global.audit.DateAudit;
+import com.bluebird.pipit.security.Role;
+import com.bluebird.pipit.user.domain.audit.DateAudit;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.sun.istack.NotNull;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "users", uniqueConstraints = {
-		@UniqueConstraint(columnNames = {
-			"username"
-		}),
-		@UniqueConstraint(columnNames = {
-			"email"
-		}),
+	@UniqueConstraint(columnNames = {
+		"username"
+	}),
+	@UniqueConstraint(columnNames = {
+		"email"
+	}),
 })
 public class User extends DateAudit {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @Column(nullable = false)
-    private String name;
+	@Column(nullable = false)
+	private String name;
 
 	private String username;
 
-    @Column(nullable = false)
-    private String email;
+	@Column(nullable = false)
+	private String email;
 
-    private String imageUrl;
+	@JsonIgnore
+	private String password;
 
-    @Column(nullable = false)
-    private Boolean emailVerified = false;
+	@ManyToMany(fetch = FetchType.LAZY)
+	@JoinTable(name = "user_roles",
+		joinColumns = @JoinColumn(name = "user_id"),
+		inverseJoinColumns = @JoinColumn(name = "role_id"))
+	private Set<Role> roles = new HashSet<>();
 
-    @JsonIgnore
-    private String password;
+	public User() {
 
-	@NotNull
-    @Enumerated(EnumType.STRING)
-    private AuthProvider provider;
-
-    private String providerId;
+	}
 
 	public User(String name, String username, String email, String password) {
 		this.name = name;
@@ -95,5 +98,13 @@ public class User extends DateAudit {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	public Set<Role> getRoles() {
+		return roles;
+	}
+
+	public void setRoles(Set<Role> roles) {
+		this.roles = roles;
 	}
 }

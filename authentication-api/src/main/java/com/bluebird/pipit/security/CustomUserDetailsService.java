@@ -1,7 +1,7 @@
 package com.bluebird.pipit.security;
 
-import com.bluebird.pipit.domain.user.dao.UserRepository;
-import com.bluebird.pipit.domain.user.domain.User;
+import com.bluebird.pipit.user.repository.UserRepository;
+import com.bluebird.pipit.user.domain.User;
 import com.bluebird.pipit.global.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;

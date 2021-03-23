@@ -1,101 +1,118 @@
 package com.bluebird.pipit.security;
 
-import com.bluebird.pipit.domain.user.domain.User;
+import com.bluebird.pipit.user.domain.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
-public class UserPrincipal implements OAuth2User, UserDetails {
-    private Long id;
-    private String email;
-    private String password;
-    private Collection<? extends GrantedAuthority> authorities;
-    private Map<String, Object> attributes;
+public class UserPrincipal implements UserDetails {
+	private Long id;
 
-    public UserPrincipal(Long id, String email, String password, Collection<? extends GrantedAuthority> authorities) {
-        this.id = id;
-        this.email = email;
-        this.password = password;
-        this.authorities = authorities;
-    }
+	private String name;
 
-    public static UserPrincipal create(User user) {
-        List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
+	private String username;
 
-        return new UserPrincipal(
-                user.getId(),
-                user.getEmail(),
-                user.getPassword(),
-                authorities
-        );
-    }
+	@JsonIgnore
+	private String email;
 
-    public static UserPrincipal create(User user, Map<String, Object> attributes) {
-        UserPrincipal userPrincipal = UserPrincipal.create(user);
-        userPrincipal.setAttributes(attributes);
-        return userPrincipal;
-    }
+	@JsonIgnore
+	private String password;
 
-    public Long getId() {
-        return id;
-    }
+	private Collection<? extends GrantedAuthority> authorities;
 
-    public String getEmail() {
-        return email;
-    }
+	public UserPrincipal(Long id, String name, String username, String email, String password,
+						 Collection<? extends GrantedAuthority> authorities) {
+		this.id = id;
+		this.name = name;
+		this.username = username;
+		this.email = email;
+		this.password = password;
+		this.authorities = authorities;
+	}
 
-    @Override
-    public String getPassword() {
-        return password;
-    }
+	public static UserPrincipal create(User user) {
+		List<GrantedAuthority> authorities = user.getRoles().stream().map(role ->
+			new SimpleGrantedAuthority(role.getName().name())
+		).collect(Collectors.toList());
 
-    @Override
-    public String getUsername() {
-        return email;
-    }
+		return new UserPrincipal(
+			user.getId(),
+			user.getName(),
+			user.getUsername(),
+			user.getEmail(),
+			user.getPassword(),
+			authorities
+		);
+	}
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
+	public Long getId() {
+		return id;
+	}
 
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
+	public String getName() {
+		return name;
+	}
 
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
+	public String getEmail() {
+		return email;
+	}
 
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
+	@Override
+	public String getUsername() {
+		return username;
+	}
 
-    @Override
-    public Map<String, Object> getAttributes() {
-        return attributes;
-    }
+	@Override
+	public String getPassword() {
+		return password;
+	}
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return authorities;
-    }
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		return authorities;
+	}
 
-    public void setAttributes(Map<String, Object> attributes) {
-        this.attributes = attributes;
-    }
+	@Override
+	public boolean isAccountNonExpired() {
+		return true;
+	}
 
-    @Override
-    public String getName() {
-        return String.valueOf(id);
-    }
+	@Override
+	public boolean isAccountNonLocked() {
+		return true;
+	}
+
+	@Override
+	public boolean isCredentialsNonExpired() {
+		return true;
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return true;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+		UserPrincipal that = (UserPrincipal) o;
+		return Objects.equals(id, that.id);
+	}
+
+	@Override
+	public int hashCode() {
+
+		return Objects.hash(id);
+	}
 }
