@@ -4,62 +4,75 @@ import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+
+@Log4j2
+@RequiredArgsConstructor
 public class PortalLoginCrawler {
-	String ID;
-	String password;
+	private static final String JSESSIONID = "JSESSIONMARKID";
+	private final ConnectionConfig connectionConfig;
 
-	public PortalLoginCrawler(String ID, String password) {
-		this.ID = ID;
-		this.password = password;
-	}
-
-	public Boolean loginPortal() throws Exception {
-
-		Connection.Response loginPageResponse = Jsoup.connect("https://portal.sookmyung.ac.kr/irj/portal")
-			.timeout(3000)
-			.header("Origin", "https://portal.sookmyung.ac.kr")
-			.header("Referer", "https://portal.sookmyung.ac.kr/irj/portal")
-			.header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9")
-			.header("Content-Type", "application/x-www-form-urlencoded")
-			.header("Accept-Encoding", "gzip, deflate, br")
-			.header("Accept-Language", "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7")
-			.method(Connection.Method.GET)
-			.execute();
+	public boolean loginPortal(String id, String password) {
+		Connection.Response loginPageResponse = null;
+		try {
+			loginPageResponse = Jsoup.connect(connectionConfig.getUrl())
+				.timeout(3000)
+				.header("Origin", connectionConfig.getHeader().get("origin"))
+				.header("Referer", connectionConfig.getHeader().get("referer"))
+				.header("Accept", connectionConfig.getHeader().get("accept"))
+				.header("Content-Type", connectionConfig.getHeader().get("contentType"))
+				.header("Accept-Encoding", connectionConfig.getHeader().get("acceptEncoding"))
+				.header("Accept-Language", connectionConfig.getHeader().get("acceptLanguage"))
+				.method(Connection.Method.GET)
+				.execute();
+		} catch (IOException e) {
+			log.error("Failed to connect to login page : GET", e);
+		}
 
 		Map<String, String> loginPageCookie = loginPageResponse.cookies();
-		Document loginPageDocument = loginPageResponse.parse();
+
+		Document loginPageDocument = null;
+		try {
+			loginPageDocument = loginPageResponse.parse();
+		} catch (IOException e) {
+			log.error("Failed to parse response", e);
+		}
 		String j_salt = loginPageDocument.select("input.j_salt").val();
-		String userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36";
 
 		Map<String, String> loginFormData = new HashMap<>();
 		loginFormData.put("login_submit", "on");
 		loginFormData.put("login_do_redirect", "1");
 		loginFormData.put("no_cert_storing", "on");
 		loginFormData.put("j_salt", j_salt);
-		loginFormData.put("j_username", ID);
+		loginFormData.put("j_username", id);
 		loginFormData.put("j_password", password);
 		loginFormData.put("saveid", "N");
 
-		Connection.Response response = Jsoup.connect("https://portal.sookmyung.ac.kr/irj/portal")
-			.userAgent(userAgent)
-			.timeout(3000)
-			.header("Origin", "https://portal.sookmyung.ac.kr")
-			.header("Referer", "https://portal.sookmyung.ac.kr/irj/portal")
-			.header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9")
-			.header("Content-Type", "application/x-www-form-urlencoded")
-			.header("Accept-Encoding", "gzip, deflate, br")
-			.header("Accept-Language", "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7")
-			.cookies(loginPageCookie)
-			.data(loginFormData)
-			.method(Connection.Method.POST)
-			.execute();
+		Connection.Response loginResponse = null;
+		try {
+			loginResponse = Jsoup.connect(connectionConfig.getUrl())
+				.userAgent(connectionConfig.getUserAgent())
+				.timeout(3000)
+				.header("Origin", connectionConfig.getHeader().get("origin"))
+				.header("Referer", connectionConfig.getHeader().get("referer"))
+				.header("Accept", connectionConfig.getHeader().get("accept"))
+				.header("Content-Type", connectionConfig.getHeader().get("contentType"))
+				.header("Accept-Encoding", connectionConfig.getHeader().get("acceptEncoding"))
+				.header("Accept-Language", connectionConfig.getHeader().get("acceptLanguage"))
+				.cookies(loginPageCookie)
+				.data(loginFormData)
+				.method(Connection.Method.POST)
+				.execute();
+		} catch (IOException e) {
+			log.error("Failed to connect to login page : POST", e);
+		}
 
-		Map<String, String> loginCookie = response.cookies();
-
-		return loginCookie.containsKey("JSESSIONMARKID");
+		return loginResponse.cookies().containsKey(JSESSIONID);
 	}
 
 }
