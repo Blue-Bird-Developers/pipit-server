@@ -24,8 +24,13 @@ configurations {
     }
 }
 
+ext {
+    JSOUP_VERSION = "1.8.3"
+}
+
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.jsoup:jsoup:${JSOUP_VERSION}")
 
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
