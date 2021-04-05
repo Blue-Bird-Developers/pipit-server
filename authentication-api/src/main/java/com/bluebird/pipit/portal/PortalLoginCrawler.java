@@ -15,14 +15,14 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class PortalLoginCrawler {
 	private static final String JSESSION_ID = "JSESSIONMARKID";
-	private static final int TIMEOUT = 3000;
+	private static final int CONNECTION_TIMEOUT = 3000;
 	private final ConnectionProperties connectionProperties;
 
 	public boolean loginPortal(String id, String password) {
 		Connection.Response loginPageResponse;
 		try {
 			loginPageResponse = Jsoup.connect(connectionProperties.getUrl())
-				.timeout(TIMEOUT)
+				.timeout(CONNECTION_TIMEOUT)
 				.header("Origin", connectionProperties.getHeader().getOrigin())
 				.header("Referer", connectionProperties.getHeader().getReferer())
 				.header("Accept", connectionProperties.getHeader().getAccept())
@@ -60,7 +60,7 @@ public class PortalLoginCrawler {
 		try {
 			loginResponse = Jsoup.connect(connectionProperties.getUrl())
 				.userAgent(connectionProperties.getUserAgent())
-				.timeout(TIMEOUT)
+				.timeout(CONNECTION_TIMEOUT)
 				.header("Origin", connectionProperties.getHeader().getOrigin())
 				.header("Referer", connectionProperties.getHeader().getReferer())
 				.header("Accept", connectionProperties.getHeader().getAccept())
