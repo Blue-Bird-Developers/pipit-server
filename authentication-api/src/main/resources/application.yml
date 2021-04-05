@@ -6,13 +6,15 @@ spring:
   banner:
     location: classpath:banner/banner.txt
 
-connection:
-  url: https://portal.sookmyung.ac.kr/irj/portal
-  userAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36
-  header:
-    origin: https://portal.sookmyung.ac.kr
-    referer: https://portal.sookmyung.ac.kr/irj/portal
-    accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
-    contentType: application/x-www-form-urlencoded
-    acceptEncoding: gzip, deflate, br
-    acceptLanguage: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7
+portal:
+  jsoup:
+    connection:
+      url: https://portal.sookmyung.ac.kr/irj/portal
+      userAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36
+      header:
+        origin: https://portal.sookmyung.ac.kr
+        referer: https://portal.sookmyung.ac.kr/irj/portal
+        accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+        contentType: application/x-www-form-urlencoded
+        acceptEncoding: gzip, deflate, br
+        acceptLanguage: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7

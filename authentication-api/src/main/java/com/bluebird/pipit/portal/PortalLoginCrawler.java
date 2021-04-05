@@ -9,38 +9,41 @@ import java.util.HashMap;
 import java.util.Map;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
-@Log4j2
+@Slf4j
 @RequiredArgsConstructor
 public class PortalLoginCrawler {
-	private static final String JSESSIONID = "JSESSIONMARKID";
-	private final ConnectionConfig connectionConfig;
+	private static final String JSESSION_ID = "JSESSIONMARKID";
+	private static final int TIMEOUT = 3000;
+	private final ConnectionProperties connectionProperties;
 
 	public boolean loginPortal(String id, String password) {
-		Connection.Response loginPageResponse = null;
+		Connection.Response loginPageResponse;
 		try {
-			loginPageResponse = Jsoup.connect(connectionConfig.getUrl())
-				.timeout(3000)
-				.header("Origin", connectionConfig.getHeader().get("origin"))
-				.header("Referer", connectionConfig.getHeader().get("referer"))
-				.header("Accept", connectionConfig.getHeader().get("accept"))
-				.header("Content-Type", connectionConfig.getHeader().get("contentType"))
-				.header("Accept-Encoding", connectionConfig.getHeader().get("acceptEncoding"))
-				.header("Accept-Language", connectionConfig.getHeader().get("acceptLanguage"))
+			loginPageResponse = Jsoup.connect(connectionProperties.getUrl())
+				.timeout(TIMEOUT)
+				.header("Origin", connectionProperties.getHeader().getOrigin())
+				.header("Referer", connectionProperties.getHeader().getReferer())
+				.header("Accept", connectionProperties.getHeader().getAccept())
+				.header("Content-Type", connectionProperties.getHeader().getContentType())
+				.header("Accept-Encoding", connectionProperties.getHeader().getAcceptEncoding())
+				.header("Accept-Language", connectionProperties.getHeader().getAcceptLanguage())
 				.method(Connection.Method.GET)
 				.execute();
 		} catch (IOException e) {
 			log.error("Failed to connect to login page : GET", e);
+			return false;
 		}
 
 		Map<String, String> loginPageCookie = loginPageResponse.cookies();
 
-		Document loginPageDocument = null;
+		Document loginPageDocument;
 		try {
 			loginPageDocument = loginPageResponse.parse();
 		} catch (IOException e) {
 			log.error("Failed to parse response", e);
+			return false;
 		}
 		String j_salt = loginPageDocument.select("input.j_salt").val();
 
@@ -53,26 +56,27 @@ public class PortalLoginCrawler {
 		loginFormData.put("j_password", password);
 		loginFormData.put("saveid", "N");
 
-		Connection.Response loginResponse = null;
+		Connection.Response loginResponse;
 		try {
-			loginResponse = Jsoup.connect(connectionConfig.getUrl())
-				.userAgent(connectionConfig.getUserAgent())
-				.timeout(3000)
-				.header("Origin", connectionConfig.getHeader().get("origin"))
-				.header("Referer", connectionConfig.getHeader().get("referer"))
-				.header("Accept", connectionConfig.getHeader().get("accept"))
-				.header("Content-Type", connectionConfig.getHeader().get("contentType"))
-				.header("Accept-Encoding", connectionConfig.getHeader().get("acceptEncoding"))
-				.header("Accept-Language", connectionConfig.getHeader().get("acceptLanguage"))
+			loginResponse = Jsoup.connect(connectionProperties.getUrl())
+				.userAgent(connectionProperties.getUserAgent())
+				.timeout(TIMEOUT)
+				.header("Origin", connectionProperties.getHeader().getOrigin())
+				.header("Referer", connectionProperties.getHeader().getReferer())
+				.header("Accept", connectionProperties.getHeader().getAccept())
+				.header("Content-Type", connectionProperties.getHeader().getContentType())
+				.header("Accept-Encoding", connectionProperties.getHeader().getAcceptEncoding())
+				.header("Accept-Language", connectionProperties.getHeader().getAcceptLanguage())
 				.cookies(loginPageCookie)
 				.data(loginFormData)
 				.method(Connection.Method.POST)
 				.execute();
 		} catch (IOException e) {
 			log.error("Failed to connect to login page : POST", e);
+			return false;
 		}
 
-		return loginResponse.cookies().containsKey(JSESSIONID);
+		return loginResponse.cookies().containsKey(JSESSION_ID);
 	}
 
 }
