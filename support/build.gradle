@@ -25,12 +25,19 @@ configurations {
     }
 }
 
+ext {
+    SPRING_PROBLEM_VERSION = "0.26.2"
+    SWAGGER_VERSION = "3.0.0"
+}
+
 dependencies {
     api("com.google.code.findbugs:jsr305:3.0.2")
     api("com.google.code.findbugs:annotations:3.0.1")
 
     implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.zalando:problem-spring-web:${springProblemVersion}")
+    implementation("org.zalando:problem-spring-web:${SPRING_PROBLEM_VERSION}")
+
+    api("io.springfox:springfox-swagger2:${SWAGGER_VERSION}")
 
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
