@@ -28,11 +28,6 @@ public class JwtTokenProvider {
 			securityProperties.getAccessTokenValidSecond());
 	}
 
-	public String generateRefreshToken(Authentication authentication) {
-		return generateToken((UserPrincipal) authentication.getPrincipal(),
-			securityProperties.getRefreshTokenValidSecond());
-	}
-
 	public String generateToken(UserPrincipal userPrincipal, long expireTime) {
 		Date now = new Date();
 		Date expiryDate = new Date(System.currentTimeMillis() + expireTime);

@@ -56,7 +56,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			.filter(cookies -> cookies.getName().equals(securityProperties.getJwtCookieName()))
 			.findFirst()
 			.map(Cookie::getValue)
-			.map(cookie -> cookie.substring(securityProperties.getJwtCookieName().length())) //TODO 확인 필요
+			.map(cookie -> cookie.substring(securityProperties.getJwtCookieName().length()))
 			.orElse(null);
 	}
 }
