@@ -2,6 +2,7 @@ package com.bluebird.pipit.security;
 
 import com.bluebird.pipit.user.domain.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,28 +12,25 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+@Getter
 public class UserPrincipal implements UserDetails {
-	private Long id;
+	private final Long id;
 
-	private String name;
+	private final String pipitId;
 
-	private String username;
-
-	@JsonIgnore
-	private String email;
+	private final String displayName;
 
 	@JsonIgnore
-	private String password;
+	private final String pipitPassword;
 
 	private Collection<? extends GrantedAuthority> authorities;
 
-	public UserPrincipal(Long id, String name, String username, String email, String password,
+	public UserPrincipal(Long id, String pipitId, String displayName, String pipitPassword,
 						 Collection<? extends GrantedAuthority> authorities) {
 		this.id = id;
-		this.name = name;
-		this.username = username;
-		this.email = email;
-		this.password = password;
+		this.pipitId = pipitId;
+		this.displayName = displayName;
+		this.pipitPassword = pipitPassword;
 		this.authorities = authorities;
 	}
 
@@ -43,39 +41,26 @@ public class UserPrincipal implements UserDetails {
 
 		return new UserPrincipal(
 			user.getId(),
-			user.getName(),
-			user.getUsername(),
-			user.getEmail(),
-			user.getPassword(),
+			user.getPipitId(),
+			user.getDisplayName(),
+			user.getPipitPassword(),
 			authorities
 		);
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	@Override
-	public String getUsername() {
-		return username;
-	}
-
-	@Override
-	public String getPassword() {
-		return password;
 	}
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return authorities;
+	}
+
+	@Override
+	public String getPassword() {
+		return pipitPassword;
+	}
+
+	@Override
+	public String getUsername() {
+		return displayName;
 	}
 
 	@Override

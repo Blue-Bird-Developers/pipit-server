@@ -1,8 +1,12 @@
 package com.bluebird.pipit.user.domain;
 
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBIndexHashKey;
 import com.bluebird.pipit.security.Role;
 import com.bluebird.pipit.user.domain.audit.DateAudit;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -19,85 +23,37 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@Getter
+@NoArgsConstructor
 @Table(name = "users", uniqueConstraints = {
 	@UniqueConstraint(columnNames = {
-		"username"
-	}),
-	@UniqueConstraint(columnNames = {
-		"email"
-	}),
+		"displayName"
+	})
 })
 public class User extends DateAudit {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(nullable = false)
-	private String name;
-
-	private String username;
-
-	@Column(nullable = false)
-	private String email;
+	@DynamoDBIndexHashKey(globalSecondaryIndexName = "userId")
+	private String pipitId;
 
 	@JsonIgnore
-	private String password;
+	private String pipitPassword;
+
+	private String displayName;
 
 	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "user_roles",
-		joinColumns = @JoinColumn(name = "user_id"),
+		joinColumns = @JoinColumn(name = "pipit_id"),
 		inverseJoinColumns = @JoinColumn(name = "role_id"))
 	private Set<Role> roles = new HashSet<>();
 
-	public User() {
-
-	}
-
-	public User(String name, String username, String email, String password) {
-		this.name = name;
-		this.username = username;
-		this.email = email;
-		this.password = password;
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getUsername() {
-		return username;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
+	@Builder
+	public User(String pipitId, String displayName, String pipitPassword) {
+		this.pipitId = pipitId;
+		this.displayName = displayName;
+		this.pipitPassword = pipitPassword;
 	}
 
 	public Set<Role> getRoles() {
