@@ -12,8 +12,8 @@ import org.springframework.context.annotation.Configuration;
 @ToString
 @ConfigurationProperties(prefix = "security")
 public class SecurityProperties {
-	private long accessTokenValidSecond;
-	private String accessTokenName;
-	private String jwtCookieName;
-	private String jwtSecret;
+	private final long accessTokenValidSecond;
+	private final String accessTokenName;
+	private final String jwtCookieName;
+	private final String jwtSecret;
 }
