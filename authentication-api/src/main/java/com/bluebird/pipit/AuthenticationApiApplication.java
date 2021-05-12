@@ -8,8 +8,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import com.bluebird.pipit.portal.ConnectionProperties;
 
 @SpringBootApplication
-@EnableConfigurationProperties(ConnectionProperties.class)
-@EnableConfigurationProperties(AppProperties.class)
+@EnableConfigurationProperties({ConnectionProperties.class, AppProperties.class})
 public class AuthenticationApiApplication {
 
 	public static void main(String[] args) {
