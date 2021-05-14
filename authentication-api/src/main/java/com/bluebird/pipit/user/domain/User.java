@@ -1,14 +1,8 @@
 package com.bluebird.pipit.user.domain;
 
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBIndexHashKey;
-import com.bluebird.pipit.security.Role;
-import com.bluebird.pipit.user.domain.audit.DateAudit;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import java.util.HashSet;
+import java.util.Set;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -19,8 +13,13 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import java.util.HashSet;
-import java.util.Set;
+
+import com.bluebird.pipit.security.Role;
+import com.bluebird.pipit.user.domain.audit.DateAudit;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
@@ -35,7 +34,6 @@ public class User extends DateAudit {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@DynamoDBIndexHashKey(globalSecondaryIndexName = "userId")
 	private String pipitId;
 
 	@JsonIgnore
