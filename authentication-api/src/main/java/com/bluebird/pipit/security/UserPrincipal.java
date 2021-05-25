@@ -18,18 +18,15 @@ public class UserPrincipal implements UserDetails {
 
 	private final String pipitId;
 
-	private final String displayName;
-
 	@JsonIgnore
 	private final String pipitPassword;
 
 	private Collection<? extends GrantedAuthority> authorities;
 
-	public UserPrincipal(Long id, String pipitId, String displayName, String pipitPassword,
+	public UserPrincipal(Long id, String pipitId, String pipitPassword,
 						 Collection<? extends GrantedAuthority> authorities) {
 		this.id = id;
 		this.pipitId = pipitId;
-		this.displayName = displayName;
 		this.pipitPassword = pipitPassword;
 		this.authorities = authorities;
 	}
@@ -42,7 +39,6 @@ public class UserPrincipal implements UserDetails {
 		return new UserPrincipal(
 			user.getId(),
 			user.getPipitId(),
-			user.getDisplayName(),
 			user.getPipitPassword(),
 			authorities
 		);
@@ -60,7 +56,7 @@ public class UserPrincipal implements UserDetails {
 
 	@Override
 	public String getUsername() {
-		return displayName;
+		return null;
 	}
 
 	@Override

@@ -41,17 +41,11 @@ public class UserService {
 			throw new RuntimeException("UserID already exists");
 		}
 
-		Optional<User> userFoundByDisplayName = userRepository.findByDisplayName(signUpRequest.getDisplayName());
-		if ( userFoundByDisplayName.isPresent() ) {
-			throw new RuntimeException("DisplayName already in use");
-		}
-
 		String encryptedPassword = passwordEncoder.encode(signUpRequest.getPipitPassword());
 		User user = User.builder()
 			.pipitId(signUpRequest.getPipitId())
 			.pipitPassword(encryptedPassword)
 			.portalId(signUpRequest.getPortalId())
-			.displayName(signUpRequest.getDisplayName())
 			.build();
 		userRepository.save(user);
 	}

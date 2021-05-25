@@ -11,6 +11,4 @@ public class SignUpRequest {
 	private final boolean portalSuccess;
 	private final String pipitId;
 	private final String pipitPassword;
-	private final String displayName;
-
 }

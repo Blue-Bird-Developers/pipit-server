@@ -11,5 +11,4 @@ import com.bluebird.pipit.user.domain.User;
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByPipitId(String pipitId);
 	Optional<User> findByPortalId(String portalId);
-    Optional<User> findByDisplayName(String displayName);
 }

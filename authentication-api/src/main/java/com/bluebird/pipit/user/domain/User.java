@@ -26,7 +26,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Table(name = "users", uniqueConstraints = {
 	@UniqueConstraint(columnNames = {
-		"displayName"
+		"pipitId"
 	})
 })
 public class User extends DateAudit {
@@ -41,7 +41,6 @@ public class User extends DateAudit {
 
 	private String portalId;
 
-	private String displayName;
 
 	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "user_roles",
@@ -50,10 +49,9 @@ public class User extends DateAudit {
 	private Set<Role> roles = new HashSet<>();
 
 	@Builder
-	public User(String pipitId, String portalId, String displayName, String pipitPassword) {
+	public User(String pipitId, String portalId, String pipitPassword) {
 		this.pipitId = pipitId;
 		this.portalId = portalId;
-		this.displayName = displayName;
 		this.pipitPassword = pipitPassword;
 	}
 
