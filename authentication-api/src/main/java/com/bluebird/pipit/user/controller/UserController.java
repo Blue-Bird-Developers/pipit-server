@@ -1,5 +1,7 @@
 package com.bluebird.pipit.user.controller;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -7,8 +9,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bluebird.pipit.config.SecurityProperties;
 import com.bluebird.pipit.global.domain.PipitResponse;
+import com.bluebird.pipit.portal.dto.PortalRequest;
+import com.bluebird.pipit.portal.service.PortalService;
 import com.bluebird.pipit.user.dto.LogInRequest;
 import com.bluebird.pipit.user.dto.SignUpRequest;
 import com.bluebird.pipit.user.service.UserService;
@@ -19,20 +22,37 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping(value = "/user")
 public class UserController {
 	private final UserService userService;
-	private final SecurityProperties securityProperties;
+	private final PortalService portalService;
+
+
+	@PostMapping(value = "/portal")
+	public ResponseEntity<PipitResponse<Void>> portal(@RequestBody PortalRequest portalRequest) {
+		if (portalService.loginPortal(portalRequest))
+			return ResponseEntity.ok(new PipitResponse<>(HttpStatus.OK.value(), "Portal Login Success", null));
+		else
+			throw new RuntimeException("Portal authentication failed");
+	}
 
 	@PostMapping(value = "/signup")
 	public ResponseEntity<PipitResponse<Void>> signUp(@RequestBody SignUpRequest signUpRequest) {
-		// todo 포털 로그인 인증 필요 -> service 생성
-		userService.signUp(signUpRequest);
-
-		return ResponseEntity.ok(new PipitResponse<>(HttpStatus.OK.value(), "OK", null));
+		if (signUpRequest.isPortalSuccess()) {
+			userService.signUp(signUpRequest);
+			return ResponseEntity.ok(new PipitResponse<>(HttpStatus.OK.value(), "OK", null));
+		}
+		else
+			throw new RuntimeException("Portal authentication failed");
 	}
 
 	@PostMapping(value = "/login")
-	public String logIn(@RequestBody LogInRequest logInRequest) {
-		return userService.logIn(logInRequest);
-		// return ResponseEntity.ok(new LogInResponse<>(HttpStatus.OK.value(), "OK", jwt, null));
+	public void logIn(@RequestBody LogInRequest logInRequest, HttpServletResponse httpServletResponse) {
+		userService.logIn(httpServletResponse, logInRequest);
 	}
+
+	@PostMapping(value = "/find/id")
+	public ResponseEntity<PipitResponse<String>> findId(@RequestBody PortalRequest portalRequest) {
+		return ResponseEntity.ok(new PipitResponse<>(HttpStatus.OK.value(), "OK",  userService.findPipitId(portalRequest)));
+	}
+
+
 
 }

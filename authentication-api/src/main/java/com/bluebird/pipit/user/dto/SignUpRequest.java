@@ -8,6 +8,7 @@ import lombok.Getter;
 public class SignUpRequest {
 	private final String portalId;
 	private final String portalPassword;
+	private final boolean portalSuccess;
 	private final String pipitId;
 	private final String pipitPassword;
 	private final String displayName;

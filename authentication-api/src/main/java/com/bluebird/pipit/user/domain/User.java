@@ -39,6 +39,8 @@ public class User extends DateAudit {
 	@JsonIgnore
 	private String pipitPassword;
 
+	private String portalId;
+
 	private String displayName;
 
 	@ManyToMany(fetch = FetchType.LAZY)
@@ -48,8 +50,9 @@ public class User extends DateAudit {
 	private Set<Role> roles = new HashSet<>();
 
 	@Builder
-	public User(String pipitId, String displayName, String pipitPassword) {
+	public User(String pipitId, String portalId, String displayName, String pipitPassword) {
 		this.pipitId = pipitId;
+		this.portalId = portalId;
 		this.displayName = displayName;
 		this.pipitPassword = pipitPassword;
 	}
