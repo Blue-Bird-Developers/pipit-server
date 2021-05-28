@@ -2,6 +2,7 @@ package com.bluebird.pipit.user.service;
 
 import java.util.Optional;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.authentication.AuthenticationManager;
@@ -58,7 +59,11 @@ public class UserService {
 				logInRequest.getPipitPassword()));
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		String token = jwtTokenProvider.generateAccessToken(authentication);
-		CookieUtils.create(response, COOKIE_NAME, token, true, TOKEN_VALID_MILLISECOND);
+		CookieUtils.createCookie(response, COOKIE_NAME, token, true, TOKEN_VALID_MILLISECOND);
+	}
+
+	public void logOut(HttpServletRequest request, HttpServletResponse response) {
+		CookieUtils.deleteCookie(request, response, COOKIE_NAME);
 	}
 
 	public boolean authForResetPipitPwd(PwdAuthRequest pwdAuthRequest) {

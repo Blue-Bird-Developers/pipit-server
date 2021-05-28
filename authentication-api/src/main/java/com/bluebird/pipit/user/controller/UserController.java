@@ -1,5 +1,6 @@
 package com.bluebird.pipit.user.controller;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.http.HttpStatus;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bluebird.pipit.global.domain.PipitResponse;
+import com.bluebird.pipit.global.util.CookieUtils;
 import com.bluebird.pipit.portal.dto.PortalRequest;
 import com.bluebird.pipit.portal.service.PortalService;
 import com.bluebird.pipit.user.dto.LogInRequest;
@@ -18,6 +20,7 @@ import com.bluebird.pipit.user.dto.PwdResetRequest;
 import com.bluebird.pipit.user.dto.SignUpRequest;
 import com.bluebird.pipit.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
 
 @RestController
 @RequiredArgsConstructor
@@ -48,6 +51,11 @@ public class UserController {
 	@PostMapping(value = "/login")
 	public void logIn(@RequestBody LogInRequest logInRequest, HttpServletResponse httpServletResponse) {
 		userService.logIn(httpServletResponse, logInRequest);
+	}
+
+	@PostMapping(value = "/logout")
+	public void logOut(HttpServletRequest request, HttpServletResponse response) {
+		userService.logOut(request, response);
 	}
 
 	@PostMapping(value = "/password/auth")

@@ -26,7 +26,7 @@ public class CookieUtils {
 		return Optional.empty();
 	}
 
-	public static void create(HttpServletResponse response, String name, String token,
+	public static void createCookie(HttpServletResponse response, String name, String token,
 		Boolean secure, Integer maxAge) {
 		Cookie cookie = new Cookie(name, token);
 		cookie.setSecure(secure);
@@ -34,14 +34,6 @@ public class CookieUtils {
 		cookie.setPath("/");
 		response.addCookie(cookie);
 		addSameSiteCookieAttribute(response);
-	}
-
-	public static void addCookie(HttpServletResponse response, String name, String value, int maxAge) {
-		Cookie cookie = new Cookie(name, value);
-		cookie.setPath("/");
-		cookie.setHttpOnly(true);
-		cookie.setMaxAge(maxAge);
-		response.addCookie(cookie);
 	}
 
 	public static void deleteCookie(HttpServletRequest request, HttpServletResponse response, String name) {
