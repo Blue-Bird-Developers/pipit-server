@@ -17,6 +17,7 @@ import javax.persistence.UniqueConstraint;
 import com.bluebird.pipit.security.Role;
 import com.bluebird.pipit.user.domain.audit.DateAudit;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.sun.istack.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -34,11 +35,14 @@ public class User extends DateAudit {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
+	@NotNull
 	private String pipitId;
 
+	@NotNull
 	@JsonIgnore
 	private String pipitPassword;
 
+	@NotNull
 	private String portalId;
 
 

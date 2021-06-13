@@ -3,7 +3,7 @@ package com.bluebird.pipit.portal.service;
 import org.springframework.stereotype.Service;
 
 import com.bluebird.pipit.portal.PortalLoginCrawler;
-import com.bluebird.pipit.portal.dto.PortalRequest;
+import com.bluebird.pipit.portal.dto.PortalAuthRequest;
 import lombok.AllArgsConstructor;
 
 @Service
@@ -11,9 +11,9 @@ import lombok.AllArgsConstructor;
 public class PortalService {
 	private final PortalLoginCrawler portalLoginCrawler;
 
-	public boolean loginPortal(PortalRequest portalRequest) {
-		String id = portalRequest.getPortalId();
-		String password = portalRequest.getPortalPassword();
+	public boolean loginPortal(PortalAuthRequest portalAuthRequest) {
+		String id = portalAuthRequest.getPortalId();
+		String password = portalAuthRequest.getPortalPassword();
 		return portalLoginCrawler.loginPortal(id, password);
 	}
 }

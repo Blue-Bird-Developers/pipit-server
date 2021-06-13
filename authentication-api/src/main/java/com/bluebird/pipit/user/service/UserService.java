@@ -13,14 +13,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.bluebird.pipit.global.util.CookieUtils;
-import com.bluebird.pipit.portal.dto.PortalRequest;
+import com.bluebird.pipit.portal.dto.PortalAuthRequest;
 import com.bluebird.pipit.portal.service.PortalService;
 import com.bluebird.pipit.security.JwtTokenProvider;
 import com.bluebird.pipit.security.UserPrincipal;
 import com.bluebird.pipit.user.domain.User;
 import com.bluebird.pipit.user.dto.LogInRequest;
-import com.bluebird.pipit.user.dto.PwdAuthRequest;
-import com.bluebird.pipit.user.dto.PwdResetRequest;
+import com.bluebird.pipit.user.dto.UserCheckRequest;
+import com.bluebird.pipit.user.dto.PasswordResetRequest;
 import com.bluebird.pipit.user.dto.SignUpRequest;
 import com.bluebird.pipit.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -66,12 +66,12 @@ public class UserService {
 		CookieUtils.deleteCookie(request, response, COOKIE_NAME);
 	}
 
-	public boolean authForResetPipitPwd(PwdAuthRequest pwdAuthRequest) {
-		PortalRequest portalRequest = new PortalRequest(pwdAuthRequest.getPortalId(), pwdAuthRequest.getPortalPassword());
-		if (portalService.loginPortal(portalRequest)) {
-			Optional<User> userFoundByPortalId = userRepository.findByPortalId(portalRequest.getPortalId());
+	public boolean checkForResetPipitPassword(UserCheckRequest userCheckRequest) {
+		PortalAuthRequest portalAuthRequest = new PortalAuthRequest(userCheckRequest.getPortalId(), userCheckRequest.getPortalPassword());
+		if (portalService.loginPortal(portalAuthRequest)) {
+			Optional<User> userFoundByPortalId = userRepository.findByPortalId(portalAuthRequest.getPortalId());
 			if (userFoundByPortalId.isPresent()) {
-				if (userFoundByPortalId.get().getPipitId().equals(pwdAuthRequest.getPipitId()))
+				if (userFoundByPortalId.get().getPipitId().equals(userCheckRequest.getPipitId()))
 					return true;
 				else
 					throw new RuntimeException("Invalid pipit Id.");
@@ -83,29 +83,26 @@ public class UserService {
 			throw new RuntimeException("Portal authentication failed.");
 	}
 
-	public void resetPipitPassword(PwdResetRequest pwdResetRequest) {
-		Optional<User> userOptional = userRepository.findByPipitId(pwdResetRequest.getPipitId());
-		if (userOptional.isPresent()) {
-			User user = userOptional.get();
-			String encryptedPassword = passwordEncoder.encode(pwdResetRequest.getPipitPassword());
-			user.setPipitPassword(encryptedPassword);
-			userRepository.save(user);
-
-			Authentication authentication = authenticationManager.authenticate(
-				new UsernamePasswordAuthenticationToken(UserPrincipal.create(user),
-					encryptedPassword));
-			SecurityContextHolder.getContext().setAuthentication(authentication);
-		}
+	public void resetPipitPassword(PasswordResetRequest passwordResetRequest) {
+		String pipitId = passwordResetRequest.getPipitId();
+		String encryptedPassword = passwordEncoder.encode(passwordResetRequest.getPipitPassword());
+		userRepository.findByPipitId(pipitId)
+			.map(user -> {
+				user.setPipitPassword(encryptedPassword);
+				userRepository.save(user);
+				Authentication authentication
+					= authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(UserPrincipal.create(user), encryptedPassword));
+				SecurityContextHolder.getContext().setAuthentication(authentication);
+				return user;
+			})
+			.orElseThrow(() -> new RuntimeException("No User matches Pipit ID."));
 	}
 
-	public String findPipitId(PortalRequest portalRequest) {
-		if (portalService.loginPortal(portalRequest)) {
-			Optional<User> userFoundByPortalId = userRepository.findByPortalId(portalRequest.getPortalId());
-			if (userFoundByPortalId.isPresent()) {
-				return userFoundByPortalId.get().getPipitId();
-			}
-			else
-				throw new RuntimeException("No pipit ID matches portal account.");
+	public String findPipitId(PortalAuthRequest portalAuthRequest) {
+		if (portalService.loginPortal(portalAuthRequest)) {
+			return userRepository.findByPortalId(portalAuthRequest.getPortalId())
+				.map(User::getPipitId)
+				.orElseThrow(() -> new RuntimeException("No Pipit ID matches portal account."));
 		}
 		else
 			throw new RuntimeException("Portal authentication failed.");

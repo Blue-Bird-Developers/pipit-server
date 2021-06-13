@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public class PortalRequest {
+public class PortalAuthRequest {
 	private final String portalId;
 	private final String portalPassword;
 }

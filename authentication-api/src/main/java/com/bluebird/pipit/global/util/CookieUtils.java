@@ -27,7 +27,7 @@ public class CookieUtils {
 	}
 
 	public static void createCookie(HttpServletResponse response, String name, String token,
-		Boolean secure, Integer maxAge) {
+		boolean secure, int maxAge) {
 		Cookie cookie = new Cookie(name, token);
 		cookie.setSecure(secure);
 		cookie.setMaxAge(maxAge);
