@@ -69,15 +69,10 @@ public class UserService {
 	public boolean checkForResetPipitPassword(UserCheckRequest userCheckRequest) {
 		PortalAuthRequest portalAuthRequest = new PortalAuthRequest(userCheckRequest.getPortalId(), userCheckRequest.getPortalPassword());
 		if (portalService.loginPortal(portalAuthRequest)) {
-			Optional<User> userFoundByPortalId = userRepository.findByPortalId(portalAuthRequest.getPortalId());
-			if (userFoundByPortalId.isPresent()) {
-				if (userFoundByPortalId.get().getPipitId().equals(userCheckRequest.getPipitId()))
-					return true;
-				else
-					throw new RuntimeException("Invalid pipit Id.");
-			}
-			else
-				throw new RuntimeException("No pipit ID matches portal account.");
+			return userRepository.findByPortalId(portalAuthRequest.getPortalId())
+				.map(User::getPipitId)
+				.orElseThrow(() -> new RuntimeException("No User matches portal account."))
+				.equals(userCheckRequest.getPipitId());
 		}
 		else
 			throw new RuntimeException("Portal authentication failed.");

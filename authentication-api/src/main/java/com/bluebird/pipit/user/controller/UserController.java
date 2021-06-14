@@ -61,7 +61,7 @@ public class UserController {
 		if (userService.checkForResetPipitPassword(userCheckRequest))
 			return ResponseEntity.ok(new PipitResponse<>(HttpStatus.OK.value(), "OK", null));
 		else
-			throw new RuntimeException("User authentication to reset Pipit password failed.");
+			throw new RuntimeException("Invalid Pipit Id.");
 	}
 
 	@PostMapping(value = "/password/reset")
