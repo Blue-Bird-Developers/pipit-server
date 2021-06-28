@@ -46,9 +46,9 @@ public class User extends DateAudit {
 	private String portalId;
 
 	@ManyToMany(fetch = FetchType.LAZY)
-	@JoinTable(name = "user_roles",
-		joinColumns = @JoinColumn(name = "_id"),
-		inverseJoinColumns = @JoinColumn(name = "role_id"))
+	@JoinTable(name = "roles",
+		joinColumns = @JoinColumn(name = "id"),
+		inverseJoinColumns = @JoinColumn(name = "id"))
 	private Set<Role> roles = new HashSet<>();
 
 	@Builder
