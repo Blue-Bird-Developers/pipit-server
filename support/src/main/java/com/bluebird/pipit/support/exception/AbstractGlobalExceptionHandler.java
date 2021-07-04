@@ -74,7 +74,7 @@ public abstract class AbstractGlobalExceptionHandler implements ProblemHandling 
 			AttributeSupportException attributeException = (AttributeSupportException)exception;
 			builder.with("code", attributeException.getCode());
 			attributeException.getAttributes()
-				.forEach((key, value) -> builder.with(key, value));
+				.forEach(builder::with);
 		}
 	}
 }
