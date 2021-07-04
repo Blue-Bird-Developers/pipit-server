@@ -1,14 +1,15 @@
 package com.bluebird.pipit;
 
-import com.bluebird.pipit.config.AppProperties;
+import com.bluebird.pipit.config.SecurityProperties;
+import com.bluebird.pipit.portal.ConnectionProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
-import com.bluebird.pipit.portal.ConnectionProperties;
-
 @SpringBootApplication
-@EnableConfigurationProperties({ConnectionProperties.class, AppProperties.class})
+@ConfigurationPropertiesScan
+@EnableConfigurationProperties(value = {SecurityProperties.class, ConnectionProperties.class})
 public class AuthenticationApiApplication {
 
 	public static void main(String[] args) {

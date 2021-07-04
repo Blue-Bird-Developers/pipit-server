@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -46,9 +47,9 @@ public class User extends DateAudit {
 	private String portalId;
 
 	@ManyToMany(fetch = FetchType.LAZY)
-	@JoinTable(name = "roles",
-		joinColumns = @JoinColumn(name = "id"),
-		inverseJoinColumns = @JoinColumn(name = "id"))
+	@JoinTable(name = "user_roles",
+		joinColumns = @JoinColumn(name = "user_id"),
+		inverseJoinColumns = @JoinColumn(name = "role_id"))
 	private Set<Role> roles = new HashSet<>();
 
 	@Builder

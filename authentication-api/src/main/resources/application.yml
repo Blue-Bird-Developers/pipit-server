@@ -27,3 +27,9 @@ portal:
         contentType: application/x-www-form-urlencoded
         acceptEncoding: gzip, deflate, br
         acceptLanguage: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7
+
+security:
+  access-token-valid-second: 1000000000
+  jwtCookieName: ${JWT_NAME}
+  jwtSecret: ${JWT_SECRET}
+
