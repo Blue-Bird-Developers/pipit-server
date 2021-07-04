@@ -1,21 +1,24 @@
 package com.bluebird.pipit.config;
 
-import com.bluebird.pipit.security.CustomUserDetailsService;
-import com.bluebird.pipit.security.JwtAuthenticationEntryPoint;
-import com.bluebird.pipit.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import com.bluebird.pipit.security.CustomUserDetailsService;
+import com.bluebird.pipit.security.JwtAuthenticationEntryPoint;
+import com.bluebird.pipit.security.JwtAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -74,18 +77,24 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 					.authenticationEntryPoint(unauthorizedHandler)
 					.and()
                 .authorizeRequests()
-                    .antMatchers("/",
-                            "/error",
-                            "/favicon.ico",
-                            "/**/*.png", "/**/*.gif", "/**/*.svg", "/**/*.jpg", "/**/*.html", "/**/*.css", "/**/*.js")
-                        .permitAll()
-                    .antMatchers("/api/auth/**")
-                        .permitAll()
-                    .anyRequest()
-                        .authenticated()
-                    .and();
+				.antMatchers("/",
+					"/error",
+					"/favicon.ico",
+					"/**/*.png", "/**/*.gif", "/**/*.svg", "/**/*.jpg", "/**/*.html", "/**/*.css", "/**/*.js", "/swagger-resources/**")
+				.permitAll()
+				.antMatchers(HttpMethod.POST, "/favicon.ico", "/user/*")
+				.permitAll()
+				.anyRequest()
+				.authenticated()
+				.and();
 
-        // Custom Token을 기본 authentication Filter 앞에 위치시킴
+
+		// Custom Token을 기본 authentication Filter 앞에 위치시킴
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
     }
+
+	@Override
+	public void configure(WebSecurity web) {
+		web.ignoring().antMatchers("/v2/api-docs/**", "/swagger-ui.html", "/swagger-ui/**");
+	}
 }
