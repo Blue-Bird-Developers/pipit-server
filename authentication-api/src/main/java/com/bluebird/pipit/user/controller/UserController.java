@@ -13,9 +13,13 @@ import com.bluebird.pipit.portal.service.PortalService;
 import com.bluebird.pipit.user.dto.LogInRequest;
 import com.bluebird.pipit.user.dto.PasswordResetRequest;
 import com.bluebird.pipit.user.dto.SignUpRequest;
+import com.bluebird.pipit.user.dto.UserCheckRequest;
 import com.bluebird.pipit.user.service.UserService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 
+@Api(tags = "User")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(value = "/user")
@@ -24,38 +28,42 @@ public class UserController {
 	private final PortalService portalService;
 
 
+	@ApiOperation(value = "숙명포털 인증", notes = "숙명포털에 로그인을 시도합니다.")
 	@PostMapping(value = "/portal")
 	public void portalAuth(@RequestBody PortalAuthRequest portalAuthRequest) {
 		if (!portalService.loginPortal(portalAuthRequest))
 			throw new RuntimeException("Portal authentication failed.");
 	}
 
+	@ApiOperation(value = "회원가입", notes = "회원가입을 통해 피핏 계정을 생성합니다.")
 	@PostMapping(value = "/signup")
 	public void signUp(@RequestBody SignUpRequest signUpRequest) {
 		if (signUpRequest.isPortalSuccess())
 			userService.signUp(signUpRequest);
-			return ResponseEntity.ok(new PipitResponse<>(HttpStatus.OK.value(), "OK", null));
-		}
 		else
 			throw new RuntimeException("Portal authentication failed.");
 	}
 
+	@ApiOperation(value = "로그인", notes = "피핏 계정으로 로그인합니다.")
 	@PostMapping(value = "/login")
-	public void logIn(@RequestBody LogInRequest logInRequest, HttpServletResponse httpServletResponse) {
-		userService.logIn(httpServletResponse, logInRequest);
+	public void login(@RequestBody LogInRequest logInRequest, HttpServletResponse httpServletResponse) {
+		userService.login(httpServletResponse, logInRequest);
 	}
 
+	@ApiOperation(value = "로그아웃", notes = "피핏 계정을 로그아웃합니다.")
 	@PostMapping(value = "/logout")
-	public void logOut(HttpServletRequest request, HttpServletResponse response) {
-		userService.logOut(request, response);
+	public void logout(HttpServletRequest request, HttpServletResponse response) {
+		userService.logout(request, response);
 	}
 
+	@ApiOperation(value = "계정 확인", notes = "비밀번호 변경에 앞서, 숙명포털 계정 및 피핏 아이디에 해당하는 피핏 계정이 있는지 확인합니다.")
 	@PostMapping(value = "/password/check")
 	public void checkForResetPassword(@RequestBody UserCheckRequest userCheckRequest) {
 		if (!userService.checkForResetPipitPassword(userCheckRequest))
 			throw new RuntimeException("Invalid Pipit Id.");
 	}
 
+	@ApiOperation(value = "비밀번호 변경", notes = "피핏 아이디에 해당하는 피핏 계정의 비밀번호를 변경합니다.")
 	@PostMapping(value = "/password/reset")
 	public void resetPassword(@RequestBody PasswordResetRequest passwordResetRequest) {
 		if (passwordResetRequest.isAuthSuccess())
@@ -64,6 +72,7 @@ public class UserController {
 			throw new RuntimeException("Failed to reset Pipit password.");
 	}
 
+	@ApiOperation(value = "아이디 찾기", notes = "숙명포털 계정에 해당하는 피핏 아이디가 있다면 반환합니다.")
 	@PostMapping(value = "/id/find")
 	public String findId(@RequestBody PortalAuthRequest portalAuthRequest) {
 		return userService.findPipitId(portalAuthRequest);

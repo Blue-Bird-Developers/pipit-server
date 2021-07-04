@@ -1,18 +1,28 @@
 package com.bluebird.pipit.user.dto;
 
-import com.sun.istack.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import javax.annotation.Nonnull;
 
-@AllArgsConstructor
-@Getter
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Value;
+
+@ApiModel(value = "비밀번호 재설정 요청")
+@Value
 public class PasswordResetRequest {
-	@NotNull
-	private final boolean authSuccess;
-	@NotNull
-	private final String pipitId;
-	@NotNull
-	private final String pipitPassword;
-	private final String portalId;
-	private final String portalPassword;
+	@ApiModelProperty(value = "숙명포털 인증 성공 여부", required = true)
+	boolean authSuccess;
+
+	@ApiModelProperty(value = "피핏 아이디", required = true)
+	@Nonnull
+	String pipitId;
+
+	@ApiModelProperty(value = "피핏 비밀번호", required = true)
+	@Nonnull
+	String pipitPassword;
+
+	@ApiModelProperty(value = "숙명포털 아이디")
+	String portalId;
+
+	@ApiModelProperty(value = "숙명포털 비밀번호")
+	String portalPassword;
 }

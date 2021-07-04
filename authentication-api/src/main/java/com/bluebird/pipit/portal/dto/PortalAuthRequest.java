@@ -1,11 +1,15 @@
 package com.bluebird.pipit.portal.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Value;
 
-@AllArgsConstructor
-@Getter
+@ApiModel(value = "숙명포털 인증 요청")
+@Value
 public class PortalAuthRequest {
-	private final String portalId;
-	private final String portalPassword;
+	@ApiModelProperty(value = "숙명포털 아이디", required = true)
+	String portalId;
+
+	@ApiModelProperty(value = "숙명포털 비밀번호", required = true)
+	String portalPassword;
 }

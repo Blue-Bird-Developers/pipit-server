@@ -3,6 +3,7 @@ package com.bluebird.pipit.user.domain;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -17,7 +18,6 @@ import javax.persistence.UniqueConstraint;
 import com.bluebird.pipit.security.Role;
 import com.bluebird.pipit.user.domain.audit.DateAudit;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.sun.istack.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,14 +35,14 @@ public class User extends DateAudit {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@NotNull
+	@Nonnull
 	private String pipitId;
 
-	@NotNull
+	@Nonnull
 	@JsonIgnore
 	private String pipitPassword;
 
-	@NotNull
+	@Nonnull
 	private String portalId;
 
 	@ManyToMany(fetch = FetchType.LAZY)
@@ -52,7 +52,7 @@ public class User extends DateAudit {
 	private Set<Role> roles = new HashSet<>();
 
 	@Builder
-	public User(String pipitId, String portalId, String pipitPassword) {
+	public User(@Nonnull String pipitId, @Nonnull String portalId, @Nonnull String pipitPassword) {
 		this.pipitId = pipitId;
 		this.portalId = portalId;
 		this.pipitPassword = pipitPassword;
@@ -66,7 +66,7 @@ public class User extends DateAudit {
 		this.roles = roles;
 	}
 
-	public void setPipitPassword(String password) {
+	public void setPipitPassword(@Nonnull String password) {
 		this.pipitPassword = password;
 	}
 }

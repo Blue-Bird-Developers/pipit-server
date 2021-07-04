@@ -19,27 +19,27 @@ import com.bluebird.pipit.security.JwtTokenProvider;
 import com.bluebird.pipit.security.UserPrincipal;
 import com.bluebird.pipit.user.domain.User;
 import com.bluebird.pipit.user.dto.LogInRequest;
-import com.bluebird.pipit.user.dto.UserCheckRequest;
 import com.bluebird.pipit.user.dto.PasswordResetRequest;
 import com.bluebird.pipit.user.dto.SignUpRequest;
+import com.bluebird.pipit.user.dto.UserCheckRequest;
 import com.bluebird.pipit.user.repository.UserRepository;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class UserService {
+	private static final String COOKIE_NAME = "ACCESS-TOKEN";
+	private static final Integer TOKEN_VALID_MILLISECOND = 1000 * 60 * 60 * 24;
+
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final JwtTokenProvider jwtTokenProvider;
 	private final AuthenticationManager authenticationManager;
 	private final PortalService portalService;
 
-	private static final String COOKIE_NAME = "ACCESS-TOKEN";
-	private static final Integer TOKEN_VALID_MILLISECOND = 1000 * 60 * 60 * 24;
-
 	public void signUp(SignUpRequest signUpRequest) {
 		Optional<User> userFoundByPipitId = userRepository.findByPipitId(signUpRequest.getPipitId());
-		if ( userFoundByPipitId.isPresent() ) {
+		if (userFoundByPipitId.isPresent()) {
 			throw new RuntimeException("UserID already exists.");
 		}
 
@@ -52,7 +52,7 @@ public class UserService {
 		userRepository.save(user);
 	}
 
-	public void logIn(HttpServletResponse response, LogInRequest logInRequest) {
+	public void login(HttpServletResponse response, LogInRequest logInRequest) {
 		User user = userRepository.findByPipitId(logInRequest.getPipitId()).orElseThrow(RuntimeException::new);
 		Authentication authentication = authenticationManager.authenticate(
 			new UsernamePasswordAuthenticationToken(UserPrincipal.create(user),
@@ -62,7 +62,7 @@ public class UserService {
 		CookieUtils.createCookie(response, COOKIE_NAME, token, true, TOKEN_VALID_MILLISECOND);
 	}
 
-	public void logOut(HttpServletRequest request, HttpServletResponse response) {
+	public void logout(HttpServletRequest request, HttpServletResponse response) {
 		CookieUtils.deleteCookie(request, response, COOKIE_NAME);
 	}
 
@@ -74,8 +74,9 @@ public class UserService {
 				.orElseThrow(() -> new RuntimeException("No User matches portal account."));
 			return pipitIdFoundByPortalId.equals(userCheckRequest.getPipitId());
 		}
-		else
+		else {
 			throw new RuntimeException("Portal authentication failed.");
+		}
 	}
 
 	public void resetPipitPassword(PasswordResetRequest passwordResetRequest) {
