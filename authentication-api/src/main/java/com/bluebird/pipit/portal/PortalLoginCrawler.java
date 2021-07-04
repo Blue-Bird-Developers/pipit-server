@@ -1,22 +1,19 @@
 package com.bluebird.pipit.portal;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Component;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@Component
 public class PortalLoginCrawler {
 	private static final String JSESSION_ID = "JSESSIONMARKID";
 	private static final int CONNECTION_TIMEOUT = 3000;
