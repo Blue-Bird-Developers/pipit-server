@@ -3,18 +3,14 @@ package com.bluebird.pipit.user.controller;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bluebird.pipit.global.domain.PipitResponse;
 import com.bluebird.pipit.portal.dto.PortalAuthRequest;
 import com.bluebird.pipit.portal.service.PortalService;
 import com.bluebird.pipit.user.dto.LogInRequest;
-import com.bluebird.pipit.user.dto.UserCheckRequest;
 import com.bluebird.pipit.user.dto.PasswordResetRequest;
 import com.bluebird.pipit.user.dto.SignUpRequest;
 import com.bluebird.pipit.user.service.UserService;
@@ -29,16 +25,14 @@ public class UserController {
 
 
 	@PostMapping(value = "/portal")
-	public ResponseEntity<PipitResponse<Void>> portalAuth(@RequestBody PortalAuthRequest portalAuthRequest) {
-		if (portalService.loginPortal(portalAuthRequest))
-			return ResponseEntity.ok(new PipitResponse<>(HttpStatus.OK.value(), "Portal Login Success", null));
-		else
+	public void portalAuth(@RequestBody PortalAuthRequest portalAuthRequest) {
+		if (!portalService.loginPortal(portalAuthRequest))
 			throw new RuntimeException("Portal authentication failed.");
 	}
 
 	@PostMapping(value = "/signup")
-	public ResponseEntity<PipitResponse<Void>> signUp(@RequestBody SignUpRequest signUpRequest) {
-		if (signUpRequest.isPortalSuccess()) {
+	public void signUp(@RequestBody SignUpRequest signUpRequest) {
+		if (signUpRequest.isPortalSuccess())
 			userService.signUp(signUpRequest);
 			return ResponseEntity.ok(new PipitResponse<>(HttpStatus.OK.value(), "OK", null));
 		}
@@ -57,26 +51,22 @@ public class UserController {
 	}
 
 	@PostMapping(value = "/password/check")
-	public ResponseEntity<PipitResponse<Void>> checkForResetPassword(@RequestBody UserCheckRequest userCheckRequest) {
-		if (userService.checkForResetPipitPassword(userCheckRequest))
-			return ResponseEntity.ok(new PipitResponse<>(HttpStatus.OK.value(), "OK", null));
-		else
+	public void checkForResetPassword(@RequestBody UserCheckRequest userCheckRequest) {
+		if (!userService.checkForResetPipitPassword(userCheckRequest))
 			throw new RuntimeException("Invalid Pipit Id.");
 	}
 
 	@PostMapping(value = "/password/reset")
-	public ResponseEntity<PipitResponse<Void>> resetPassword(@RequestBody PasswordResetRequest passwordResetRequest) {
-		if (passwordResetRequest.isAuthSuccess()) {
+	public void resetPassword(@RequestBody PasswordResetRequest passwordResetRequest) {
+		if (passwordResetRequest.isAuthSuccess())
 			userService.resetPipitPassword(passwordResetRequest);
-			return ResponseEntity.ok(new PipitResponse<>(HttpStatus.OK.value(), "OK", null));
-		}
 		else
 			throw new RuntimeException("Failed to reset Pipit password.");
 	}
 
 	@PostMapping(value = "/id/find")
-	public ResponseEntity<PipitResponse<String>> findId(@RequestBody PortalAuthRequest portalAuthRequest) {
-		return ResponseEntity.ok(new PipitResponse<>(HttpStatus.OK.value(), "OK", userService.findPipitId(portalAuthRequest)));
+	public String findId(@RequestBody PortalAuthRequest portalAuthRequest) {
+		return userService.findPipitId(portalAuthRequest);
 	}
 
 
