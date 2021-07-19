@@ -15,6 +15,12 @@ spring:
     generate-ddl: true
     show-sql: true
 
+springfox:
+  documentation:
+    swagger:
+      v2:
+        use-model-v3: false
+
 portal:
   jsoup:
     connection:
