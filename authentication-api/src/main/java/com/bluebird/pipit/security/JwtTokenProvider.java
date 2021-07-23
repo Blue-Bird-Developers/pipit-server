@@ -21,7 +21,7 @@ import java.util.Date;
 public class JwtTokenProvider {
 
 	private static final Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
-	private SecurityProperties securityProperties;
+	private final SecurityProperties securityProperties;
 
 	public String generateAccessToken(Authentication authentication) {
 		return generateToken((UserPrincipal) authentication.getPrincipal(),

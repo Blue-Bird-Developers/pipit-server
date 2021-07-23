@@ -18,7 +18,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Arrays;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -33,30 +32,42 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 		throws ServletException, IOException {
-		try {
-			String jwt = getJwtFromRequest(request);
 
-			if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
-				Long userId = tokenProvider.getUserIdFromJWT(jwt);
-				UserDetails userDetails = customUserDetailsService.loadUserById(userId);
-				UsernamePasswordAuthenticationToken authentication =
-					new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-				authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+		String jwt = getJwtFromRequest(request);
+		if (jwt != null) {
+			try {
+				if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
+					Long userId = tokenProvider.getUserIdFromJWT(jwt);
+					UserDetails userDetails = customUserDetailsService.loadUserById(userId);
+					UsernamePasswordAuthenticationToken authentication =
+						new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+					authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-				SecurityContextHolder.getContext().setAuthentication(authentication);
+					SecurityContextHolder.getContext().setAuthentication(authentication);
+				}
+			} catch (Exception ignored) {
+
 			}
-		} catch (Exception ex) {
-			logger.error("Could not set user authentication in security context", ex);
 		}
 		filterChain.doFilter(request, response);
 	}
 
 	private String getJwtFromRequest(HttpServletRequest request) {
-		return Arrays.stream(request.getCookies())
-			.filter(cookies -> cookies.getName().equals(securityProperties.getJwtCookieName()))
-			.findFirst()
-			.map(Cookie::getValue)
-			.map(cookie -> cookie.substring(securityProperties.getJwtCookieName().length()))
-			.orElse(null);
+		final Cookie[] cookies = request.getCookies();
+		if (cookies == null) {
+			return null;
+		}
+		for (Cookie cookie : cookies) {
+			if (cookie.getName().equals(securityProperties.getJwtCookieName())) {
+				return cookie.getValue().substring(securityProperties.getJwtCookieName().length());
+			}
+		}
+//		return Arrays.stream(request.getCookies())
+//			.filter(cookies -> cookies.getName().equals(securityProperties.getJwtCookieName()))
+//			.findFirst()
+//			.map(Cookie::getValue)
+//			.map(cookie -> cookie.substring(securityProperties.getJwtCookieName().length()))
+//			.orElse(null);
+		return null;
 	}
 }
