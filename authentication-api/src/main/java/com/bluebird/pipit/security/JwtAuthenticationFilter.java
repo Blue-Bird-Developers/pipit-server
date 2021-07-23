@@ -18,6 +18,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -45,8 +46,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 					SecurityContextHolder.getContext().setAuthentication(authentication);
 				}
-			} catch (Exception ignored) {
-
+			} catch (Exception e) {
+				logger.error("Could not set user authentication in security context", e);
 			}
 		}
 		filterChain.doFilter(request, response);
@@ -57,17 +58,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		if (cookies == null) {
 			return null;
 		}
-		for (Cookie cookie : cookies) {
-			if (cookie.getName().equals(securityProperties.getJwtCookieName())) {
-				return cookie.getValue().substring(securityProperties.getJwtCookieName().length());
-			}
-		}
-//		return Arrays.stream(request.getCookies())
-//			.filter(cookies -> cookies.getName().equals(securityProperties.getJwtCookieName()))
-//			.findFirst()
-//			.map(Cookie::getValue)
-//			.map(cookie -> cookie.substring(securityProperties.getJwtCookieName().length()))
-//			.orElse(null);
-		return null;
+		return Arrays.stream(cookies).filter(cookie -> cookie.getName().equals(securityProperties.getJwtCookieName()))
+			.findFirst().map(cookie -> cookie.getValue().substring(securityProperties.getJwtCookieName().length()))
+			.orElse(null);
 	}
 }

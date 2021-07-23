@@ -75,12 +75,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 			.authenticationEntryPoint(jwtAuthenticationEntryPoint)
 			.and()
 			.authorizeRequests()
-//			.antMatchers("/",
-//				"/error",
-//				"/favicon.ico",
-//				"/**/*.png", "/**/*.gif", "/**/*.svg", "/**/*.jpg", "/**/*.html", "/**/*.css", "/**/*.js",
-//				"/swagger-resources/**", "/swagger-ui/**", "/swagger-resources")
-//			.permitAll()
 			.antMatchers("/user/id/find", "/user/login", "/user/logout", "/user/password/check",
 				"/user/password/reset", "/user/portal", "/user/signup")
 			.permitAll()
