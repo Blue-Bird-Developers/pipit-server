@@ -3,13 +3,14 @@ package com.bluebird.pipit.user.controller;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bluebird.pipit.portal.dto.PortalAuthRequest;
-import com.bluebird.pipit.portal.service.PortalService;
 import com.bluebird.pipit.user.dto.LogInRequest;
 import com.bluebird.pipit.user.dto.PasswordResetRequest;
 import com.bluebird.pipit.user.dto.SignUpRequest;
@@ -73,9 +74,9 @@ public class UserController {
 	}
 
 	@ApiOperation(value = "아이디 찾기", notes = "숙명포털 계정에 해당하는 피핏 아이디가 있다면 반환합니다.")
-	@PostMapping(value = "/id/find")
-	public String findId(@RequestBody PortalAuthRequest portalAuthRequest) {
-		return userService.findPipitId(portalAuthRequest);
+	@GetMapping(value = "/id/find")
+	public String findId(@RequestParam String portalId, @RequestParam String portalPassword) {
+		return userService.findPipitId(portalId, portalPassword);
 	}
 
 

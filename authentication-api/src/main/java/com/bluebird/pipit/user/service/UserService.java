@@ -1,20 +1,8 @@
 package com.bluebird.pipit.user.service;
 
-import java.util.Optional;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
 import com.bluebird.pipit.global.util.CookieUtils;
+import com.bluebird.pipit.portal.PortalLoginCrawler;
 import com.bluebird.pipit.portal.dto.PortalAuthRequest;
-import com.bluebird.pipit.portal.service.PortalService;
 import com.bluebird.pipit.security.JwtTokenProvider;
 import com.bluebird.pipit.security.UserPrincipal;
 import com.bluebird.pipit.user.domain.User;
@@ -24,6 +12,16 @@ import com.bluebird.pipit.user.dto.SignUpRequest;
 import com.bluebird.pipit.user.dto.UserCheckRequest;
 import com.bluebird.pipit.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -35,7 +33,7 @@ public class UserService {
 	private final PasswordEncoder passwordEncoder;
 	private final JwtTokenProvider jwtTokenProvider;
 	private final AuthenticationManager authenticationManager;
-	private final PortalService portalService;
+	private final PortalLoginCrawler portalLoginCrawler;
 
 	public void signUp(SignUpRequest signUpRequest) {
 		Optional<User> userFoundByPipitId = userRepository.findByPipitId(signUpRequest.getPipitId());
@@ -67,14 +65,15 @@ public class UserService {
 	}
 
 	public boolean checkForResetPipitPassword(UserCheckRequest userCheckRequest) {
-		PortalAuthRequest portalAuthRequest = new PortalAuthRequest(userCheckRequest.getPortalId(), userCheckRequest.getPortalPassword());
-		if (portalService.loginPortal(portalAuthRequest)) {
-			String pipitIdFoundByPortalId = userRepository.findByPortalId(portalAuthRequest.getPortalId())
+		PortalAuthRequest portalAuthRequest =
+			new PortalAuthRequest(userCheckRequest.getPortalId(), userCheckRequest.getPortalPassword());
+		String portalId = portalAuthRequest.getPortalId();
+		if (portalLoginCrawler.loginPortal(portalId, portalAuthRequest.getPortalPassword())) {
+			String pipitIdFoundByPortalId = userRepository.findByPortalId(portalId)
 				.map(User::getPipitId)
 				.orElseThrow(() -> new RuntimeException("No User matches portal account."));
 			return pipitIdFoundByPortalId.equals(userCheckRequest.getPipitId());
-		}
-		else {
+		} else {
 			throw new RuntimeException("Portal authentication failed.");
 		}
 	}
@@ -87,20 +86,21 @@ public class UserService {
 				user.setPipitPassword(encryptedPassword);
 				userRepository.save(user);
 				Authentication authentication
-					= authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(UserPrincipal.create(user), encryptedPassword));
+					= authenticationManager.authenticate(
+					new UsernamePasswordAuthenticationToken(UserPrincipal.create(user), encryptedPassword));
 				SecurityContextHolder.getContext().setAuthentication(authentication);
 				return user;
 			})
 			.orElseThrow(() -> new RuntimeException("No User matches Pipit ID."));
 	}
 
-	public String findPipitId(PortalAuthRequest portalAuthRequest) {
-		if (portalService.loginPortal(portalAuthRequest)) {
-			return userRepository.findByPortalId(portalAuthRequest.getPortalId())
+	public String findPipitId(String portalId, String portalPassword) {
+		if (portalLoginCrawler.loginPortal(portalId, portalPassword)) {
+			return userRepository.findByPortalId(portalId)
 				.map(User::getPipitId)
 				.orElseThrow(() -> new RuntimeException("No Pipit ID matches portal account."));
-		}
-		else
+		} else {
 			throw new RuntimeException("Portal authentication failed.");
+		}
 	}
 }
