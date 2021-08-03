@@ -1,19 +1,16 @@
 package com.bluebird.pipit.config;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.ToString;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.context.properties.ConstructorBinding;
 
-@Configuration
-@AllArgsConstructor
 @Getter
-@ToString
+@RequiredArgsConstructor
 @ConfigurationProperties(prefix = "security")
+@ConstructorBinding
 public class SecurityProperties {
 	private final long accessTokenValidSecond;
-	private final String accessTokenName;
 	private final String jwtCookieName;
 	private final String jwtSecret;
 }

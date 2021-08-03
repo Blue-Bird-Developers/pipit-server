@@ -1,18 +1,20 @@
 package com.bluebird.pipit.portal;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.ConstructorBinding;
 
 @Getter
-@Setter(AccessLevel.PACKAGE)
+@RequiredArgsConstructor
 @ConfigurationProperties(prefix = "portal.jsoup.connection")
+@ConstructorBinding
 public class ConnectionProperties {
-	private String url;
-	private String userAgent;
-	private Header header;
+	private final String url;
+	private final String userAgent;
+	private final Header header;
 
 	@Getter
 	@Setter(AccessLevel.PACKAGE)

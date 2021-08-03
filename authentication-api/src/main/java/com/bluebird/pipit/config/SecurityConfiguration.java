@@ -5,11 +5,13 @@ import com.bluebird.pipit.security.JwtAuthenticationEntryPoint;
 import com.bluebird.pipit.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -20,18 +22,19 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(
-        securedEnabled = true,
-        jsr250Enabled = true,
-        prePostEnabled = true
+	securedEnabled = true,
+	jsr250Enabled = true,
+	prePostEnabled = true
 )
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
-    private CustomUserDetailsService customUserDetailsService;
-	private JwtAuthenticationEntryPoint unauthorizedHandler;
+	private final CustomUserDetailsService customUserDetailsService;
+	private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
-    public SecurityConfiguration(CustomUserDetailsService customUserDetailsService, JwtAuthenticationEntryPoint unauthorizedHandler) {
-        this.customUserDetailsService = customUserDetailsService;
-        this.unauthorizedHandler = unauthorizedHandler;
-    }
+	public SecurityConfiguration(CustomUserDetailsService customUserDetailsService,
+								 JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint) {
+		this.customUserDetailsService = customUserDetailsService;
+		this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
+	}
 
 	@Bean
 	public JwtAuthenticationFilter jwtAuthenticationFilter() {
@@ -51,41 +54,34 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		return super.authenticationManagerBean();
 	}
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception{
-        http
-                .cors()
-                    .and()
-                .sessionManagement()
-                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                    .and()
-                .csrf()
-                    .disable()
-                .formLogin()
-                    .disable()
-                .httpBasic()
-                    .disable()
-				.exceptionHandling()
-					.authenticationEntryPoint(unauthorizedHandler)
-					.and()
-                .authorizeRequests()
-                    .antMatchers("/",
-                            "/error",
-                            "/favicon.ico",
-                            "/**/*.png", "/**/*.gif", "/**/*.svg", "/**/*.jpg", "/**/*.html", "/**/*.css", "/**/*.js")
-                        .permitAll()
-                    .antMatchers("/api/auth/**")
-                        .permitAll()
-                    .anyRequest()
-                        .authenticated()
-                    .and();
+	@Override
+	public void configure(WebSecurity web) {
+		web.ignoring().antMatchers("/v2/api-docs", "/swagger-ui/index.html", "/swagger-ui/**",
+			"/swagger-resources/**",
+			"/swagger-ui/**");
+	}
 
-        // Custom Token을 기본 authentication Filter 앞에 위치시킴
-        http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
-    }
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http.csrf().disable()
+			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+			.and()
+			.httpBasic()
+			.authenticationEntryPoint(jwtAuthenticationEntryPoint)
+			.and()
+			.authorizeRequests()
+			.antMatchers("/user/id/find", "/user/login", "/user/logout", "/user/password/check",
+				"/user/password/reset", "/user/portal", "/user/signup")
+			.permitAll()
+			.anyRequest()
+			.authenticated();
+
+		// Custom Token을 기본 authentication Filter 앞에 위치시킴
+		http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+	}
 }

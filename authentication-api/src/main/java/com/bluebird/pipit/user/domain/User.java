@@ -1,6 +1,5 @@
 package com.bluebird.pipit.user.domain;
 
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBIndexHashKey;
 import com.bluebird.pipit.security.Role;
 import com.bluebird.pipit.user.domain.audit.DateAudit;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -8,7 +7,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
+import javax.annotation.Nonnull;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -27,7 +27,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Table(name = "users", uniqueConstraints = {
 	@UniqueConstraint(columnNames = {
-		"displayName"
+		"pipitId"
 	})
 })
 public class User extends DateAudit {
@@ -35,25 +35,29 @@ public class User extends DateAudit {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@DynamoDBIndexHashKey(globalSecondaryIndexName = "userId")
+	@Nonnull
 	private String pipitId;
 
+	@Nonnull
 	@JsonIgnore
 	private String pipitPassword;
 
-	private String displayName;
+	@Nonnull
+	private String portalId;
 
-	@ManyToMany(fetch = FetchType.LAZY)
+	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
 	@JoinTable(name = "user_roles",
-		joinColumns = @JoinColumn(name = "pipit_id"),
+		joinColumns = @JoinColumn(name = "user_id"),
 		inverseJoinColumns = @JoinColumn(name = "role_id"))
 	private Set<Role> roles = new HashSet<>();
 
 	@Builder
-	public User(String pipitId, String displayName, String pipitPassword) {
+	public User(@Nonnull String pipitId, @Nonnull String portalId, @Nonnull String pipitPassword,
+				@Nonnull Set<Role> roles) {
 		this.pipitId = pipitId;
-		this.displayName = displayName;
+		this.portalId = portalId;
 		this.pipitPassword = pipitPassword;
+		this.roles = roles;
 	}
 
 	public Set<Role> getRoles() {
@@ -62,5 +66,9 @@ public class User extends DateAudit {
 
 	public void setRoles(Set<Role> roles) {
 		this.roles = roles;
+	}
+
+	public void setPipitPassword(@Nonnull String password) {
+		this.pipitPassword = password;
 	}
 }

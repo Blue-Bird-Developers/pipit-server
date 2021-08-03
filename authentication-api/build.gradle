@@ -27,13 +27,17 @@ configurations {
 ext {
     JSOUP_VERSION = "1.8.3"
     SWAGGER_VERSION = "3.0.0"
+    MYSQL_VERSION = "8.0.25"
 }
 
 dependencies {
+    implementation project(":support")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("io.springfox:springfox-boot-starter:${SWAGGER_VERSION}")
     implementation("org.jsoup:jsoup:${JSOUP_VERSION}")
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation('org.springframework.boot:spring-boot-starter-data-jpa')
+    implementation("mysql:mysql-connector-java:${MYSQL_VERSION}")
+
 
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
@@ -43,8 +47,8 @@ dependencies {
     testCompileOnly("org.projectlombok:lombok")
     testAnnotationProcessor("org.projectlombok:lombok")
 
-    implementation ("org.springframework.boot:spring-boot-starter-security")
-    implementation ("io.jsonwebtoken:jjwt:0.9.1")
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("io.jsonwebtoken:jjwt:0.9.1")
 }
 
 test {

@@ -35,7 +35,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		throws ServletException, IOException {
 		try {
 			String jwt = getJwtFromRequest(request);
-
 			if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
 				Long userId = tokenProvider.getUserIdFromJWT(jwt);
 				UserDetails userDetails = customUserDetailsService.loadUserById(userId);
@@ -45,18 +44,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 				SecurityContextHolder.getContext().setAuthentication(authentication);
 			}
-		} catch (Exception ex) {
-			logger.error("Could not set user authentication in security context", ex);
+		} catch (Exception e) {
+			logger.error("Could not set user authentication in security context", e);
 		}
 		filterChain.doFilter(request, response);
 	}
 
 	private String getJwtFromRequest(HttpServletRequest request) {
-		return Arrays.stream(request.getCookies())
-			.filter(cookies -> cookies.getName().equals(securityProperties.getJwtCookieName()))
-			.findFirst()
-			.map(Cookie::getValue)
-			.map(cookie -> cookie.substring(securityProperties.getJwtCookieName().length()))
+		final Cookie[] cookies = request.getCookies();
+		if (cookies == null) {
+			return null;
+		}
+		return Arrays.stream(cookies).filter(cookie -> cookie.getName().equals(securityProperties.getJwtCookieName()))
+			.findFirst().map(cookie -> cookie.getValue().substring(securityProperties.getJwtCookieName().length()))
 			.orElse(null);
 	}
 }

@@ -1,16 +1,17 @@
 package com.bluebird.pipit.security;
 
-import com.bluebird.pipit.user.domain.User;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Getter;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import com.bluebird.pipit.user.domain.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Getter;
 
 @Getter
 public class UserPrincipal implements UserDetails {
@@ -18,18 +19,15 @@ public class UserPrincipal implements UserDetails {
 
 	private final String pipitId;
 
-	private final String displayName;
-
 	@JsonIgnore
 	private final String pipitPassword;
 
 	private Collection<? extends GrantedAuthority> authorities;
 
-	public UserPrincipal(Long id, String pipitId, String displayName, String pipitPassword,
+	public UserPrincipal(long id, String pipitId, String pipitPassword,
 						 Collection<? extends GrantedAuthority> authorities) {
 		this.id = id;
 		this.pipitId = pipitId;
-		this.displayName = displayName;
 		this.pipitPassword = pipitPassword;
 		this.authorities = authorities;
 	}
@@ -42,7 +40,6 @@ public class UserPrincipal implements UserDetails {
 		return new UserPrincipal(
 			user.getId(),
 			user.getPipitId(),
-			user.getDisplayName(),
 			user.getPipitPassword(),
 			authorities
 		);
@@ -60,7 +57,7 @@ public class UserPrincipal implements UserDetails {
 
 	@Override
 	public String getUsername() {
-		return displayName;
+		return pipitId;
 	}
 
 	@Override
