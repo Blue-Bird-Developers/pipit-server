@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.annotation.Nonnull;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -44,17 +45,19 @@ public class User extends DateAudit {
 	@Nonnull
 	private String portalId;
 
-	@ManyToMany(fetch = FetchType.LAZY)
+	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
 	@JoinTable(name = "user_roles",
 		joinColumns = @JoinColumn(name = "user_id"),
 		inverseJoinColumns = @JoinColumn(name = "role_id"))
 	private Set<Role> roles = new HashSet<>();
 
 	@Builder
-	public User(@Nonnull String pipitId, @Nonnull String portalId, @Nonnull String pipitPassword) {
+	public User(@Nonnull String pipitId, @Nonnull String portalId, @Nonnull String pipitPassword,
+				@Nonnull Set<Role> roles) {
 		this.pipitId = pipitId;
 		this.portalId = portalId;
 		this.pipitPassword = pipitPassword;
+		this.roles = roles;
 	}
 
 	public Set<Role> getRoles() {

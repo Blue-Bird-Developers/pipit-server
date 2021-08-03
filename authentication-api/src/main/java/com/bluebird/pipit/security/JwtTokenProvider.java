@@ -1,6 +1,7 @@
 package com.bluebird.pipit.security;
 
 import com.bluebird.pipit.config.SecurityProperties;
+import com.bluebird.pipit.user.domain.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -11,7 +12,6 @@ import io.jsonwebtoken.UnsupportedJwtException;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -23,17 +23,13 @@ public class JwtTokenProvider {
 	private static final Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
 	private final SecurityProperties securityProperties;
 
-	public String generateAccessToken(Authentication authentication) {
-		return generateToken((UserPrincipal) authentication.getPrincipal(),
-			securityProperties.getAccessTokenValidSecond());
-	}
-
-	public String generateToken(UserPrincipal userPrincipal, long expireTime) {
-		Date now = new Date();
-		Date expiryDate = new Date(System.currentTimeMillis() + expireTime);
+	public String generateToken(User user) {
+		Date expiryDate = new Date(System.currentTimeMillis() + securityProperties.getAccessTokenValidSecond());
+		Claims claims = Jwts.claims().setSubject(Long.toString(user.getId()));
+		claims.put("roles", user.getRoles());
 
 		return Jwts.builder()
-			.setSubject(Long.toString(userPrincipal.getId()))
+			.setClaims(claims)
 			.setIssuedAt(new Date(System.currentTimeMillis()))
 			.setExpiration(expiryDate)
 			.signWith(SignatureAlgorithm.HS512, securityProperties.getJwtSecret())

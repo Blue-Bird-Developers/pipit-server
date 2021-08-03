@@ -4,7 +4,8 @@ import com.bluebird.pipit.global.util.CookieUtils;
 import com.bluebird.pipit.portal.PortalLoginCrawler;
 import com.bluebird.pipit.portal.dto.PortalAuthRequest;
 import com.bluebird.pipit.security.JwtTokenProvider;
-import com.bluebird.pipit.security.UserPrincipal;
+import com.bluebird.pipit.security.Role;
+import com.bluebird.pipit.security.RoleName;
 import com.bluebird.pipit.user.domain.User;
 import com.bluebird.pipit.user.dto.LogInRequest;
 import com.bluebird.pipit.user.dto.PasswordResetRequest;
@@ -12,16 +13,13 @@ import com.bluebird.pipit.user.dto.SignUpRequest;
 import com.bluebird.pipit.user.dto.UserCheckRequest;
 import com.bluebird.pipit.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +30,6 @@ public class UserService {
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final JwtTokenProvider jwtTokenProvider;
-	private final AuthenticationManager authenticationManager;
 	private final PortalLoginCrawler portalLoginCrawler;
 
 	public void signUp(SignUpRequest signUpRequest) {
@@ -46,17 +43,14 @@ public class UserService {
 			.pipitId(signUpRequest.getPipitId())
 			.pipitPassword(encryptedPassword)
 			.portalId(signUpRequest.getPortalId())
+			.roles(Set.of(new Role(RoleName.ROLE_USER)))
 			.build();
 		userRepository.save(user);
 	}
 
 	public void login(HttpServletResponse response, LogInRequest logInRequest) {
 		User user = userRepository.findByPipitId(logInRequest.getPipitId()).orElseThrow(RuntimeException::new);
-		Authentication authentication = authenticationManager.authenticate(
-			new UsernamePasswordAuthenticationToken(UserPrincipal.create(user),
-				logInRequest.getPipitPassword()));
-		SecurityContextHolder.getContext().setAuthentication(authentication);
-		String token = jwtTokenProvider.generateAccessToken(authentication);
+		String token = jwtTokenProvider.generateToken(user);
 		CookieUtils.createCookie(response, COOKIE_NAME, token, true, TOKEN_VALID_MILLISECOND);
 	}
 
@@ -85,10 +79,6 @@ public class UserService {
 			.map(user -> {
 				user.setPipitPassword(encryptedPassword);
 				userRepository.save(user);
-				Authentication authentication
-					= authenticationManager.authenticate(
-					new UsernamePasswordAuthenticationToken(UserPrincipal.create(user), encryptedPassword));
-				SecurityContextHolder.getContext().setAuthentication(authentication);
 				return user;
 			})
 			.orElseThrow(() -> new RuntimeException("No User matches Pipit ID."));
