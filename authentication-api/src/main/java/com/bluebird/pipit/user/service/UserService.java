@@ -1,6 +1,6 @@
 package com.bluebird.pipit.user.service;
 
-import com.bluebird.pipit.global.util.CookieUtils;
+import com.bluebird.pipit.support.util.CookieUtils;
 import com.bluebird.pipit.portal.PortalLoginCrawler;
 import com.bluebird.pipit.portal.dto.PortalAuthRequest;
 import com.bluebird.pipit.security.JwtTokenProvider;

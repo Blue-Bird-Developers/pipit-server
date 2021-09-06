@@ -4,6 +4,7 @@ import javax.validation.ConstraintViolationException;
 
 import org.springframework.validation.BindException;
 
+// Controller 단 에러
 public class InvalidRequestParameterException extends AttributeSupportException {
 	public static final String INVALID_REQUEST_PARAMETER_ERROR_MESSAGE = "Some parameters are invalid.";
 

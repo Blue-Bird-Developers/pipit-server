@@ -1,4 +1,4 @@
-package com.bluebird.pipit.global.exception;
+package com.bluebird.pipit.support.exception;
 
 import org.springframework.security.core.AuthenticationException;
 

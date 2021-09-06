@@ -1,4 +1,4 @@
-package com.bluebird.pipit.global.util;
+package com.bluebird.pipit.support.util;
 
 import java.util.Base64;
 import java.util.Collection;
