@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
+// 기본 exception. custom exception 으로 확장하여 사용 가능
 public class AttributeSupportException extends RuntimeException {
 	public static final String INTERNAL_SERVER_ERROR_MESSAGE = "Internal server error.";
 

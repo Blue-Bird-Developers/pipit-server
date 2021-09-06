@@ -1,5 +1,6 @@
 package com.bluebird.pipit.support.exception;
 
+// Service 및 비즈니스 로직 에러
 public class InvalidBusinessSupportException extends AttributeSupportException {
 	private final ExceptionCode code;
 

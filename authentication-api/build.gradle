@@ -28,6 +28,7 @@ ext {
     JSOUP_VERSION = "1.8.3"
     SWAGGER_VERSION = "3.0.0"
     MYSQL_VERSION = "8.0.25"
+    SPRING_PROBLEM_VERSION = "0.26.2"
 }
 
 dependencies {
@@ -38,6 +39,7 @@ dependencies {
     implementation('org.springframework.boot:spring-boot-starter-data-jpa')
     implementation("mysql:mysql-connector-java:${MYSQL_VERSION}")
 
+    implementation("org.zalando:problem-spring-web:${SPRING_PROBLEM_VERSION}")
 
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
