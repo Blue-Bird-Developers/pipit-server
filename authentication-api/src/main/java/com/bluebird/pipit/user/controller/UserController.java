@@ -6,12 +6,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.bluebird.pipit.portal.PortalLoginCrawler;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.bluebird.pipit.portal.dto.PortalAuthRequest;
 import com.bluebird.pipit.user.dto.LogInRequest;
@@ -82,6 +77,11 @@ public class UserController {
 		return userService.findPipitId(portalId, portalPassword);
 	}
 
+	@ApiOperation(value = "회원 탈퇴", notes = "회원 탈퇴를 통해 피핏 계정을 삭제합니다.")
+	@DeleteMapping(value = "/delete")
+	public void deleteUser(@CookieValue(name = "ACCESS-TOKEN") String accessToken, @RequestParam String pipitPassword) {
+		userService.deleteUser(accessToken, pipitPassword);
+	}
 
 
 }

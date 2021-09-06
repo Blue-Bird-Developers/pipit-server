@@ -13,11 +13,16 @@ import com.bluebird.pipit.user.dto.SignUpRequest;
 import com.bluebird.pipit.user.dto.UserCheckRequest;
 import com.bluebird.pipit.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.apache.catalina.security.SecurityUtil;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.util.Optional;
 import java.util.Set;
 
@@ -91,6 +96,16 @@ public class UserService {
 				.orElseThrow(() -> new RuntimeException("No Pipit ID matches portal account."));
 		} else {
 			throw new RuntimeException("Portal authentication failed.");
+		}
+	}
+
+	public void deleteUser(String accessToken, String pipitPassword) {
+		User user = userRepository.findById(jwtTokenProvider.getUserIdFromJWT(accessToken)).orElseThrow();
+
+		if (passwordEncoder.matches(pipitPassword, user.getPipitPassword())) {
+			userRepository.delete(user);
+		} else {
+			throw new RuntimeException("Pipit password is incorrect.");
 		}
 	}
 }
