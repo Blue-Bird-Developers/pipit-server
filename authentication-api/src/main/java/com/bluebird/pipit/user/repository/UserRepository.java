@@ -1,14 +1,14 @@
 package com.bluebird.pipit.user.repository;
 
-import java.util.Optional;
-
+import com.bluebird.pipit.user.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.bluebird.pipit.user.domain.User;
+import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 	Optional<User> findByPipitId(String pipitId);
+
 	Optional<User> findByPortalId(String portalId);
 }
