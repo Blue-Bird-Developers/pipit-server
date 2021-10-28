@@ -1,6 +1,6 @@
 package com.bluebird.pipit.user.service;
 
-import com.bluebird.pipit.global.util.CookieUtils;
+import com.bluebird.pipit.support.util.CookieUtils;
 import com.bluebird.pipit.portal.PortalLoginCrawler;
 import com.bluebird.pipit.portal.dto.PortalAuthRequest;
 import com.bluebird.pipit.security.JwtTokenProvider;
@@ -37,18 +37,22 @@ public class UserService {
 	private final JwtTokenProvider jwtTokenProvider;
 	private final PortalLoginCrawler portalLoginCrawler;
 
-	public void signUp(SignUpRequest signUpRequest) {
+	public void signUp(SignUpRequest signUpRequest, boolean isAdminUser) {
 		Optional<User> userFoundByPipitId = userRepository.findByPipitId(signUpRequest.getPipitId());
-		if (userFoundByPipitId.isPresent()) {
+		Optional<User> userFoundByPortalId = userRepository.findByPortalId(signUpRequest.getPortalId());
+
+		if (userFoundByPipitId.isPresent() || userFoundByPortalId.isPresent()) {
 			throw new RuntimeException("UserID already exists.");
 		}
 
 		String encryptedPassword = passwordEncoder.encode(signUpRequest.getPipitPassword());
+		Set<Role> roles = isAdminUser ? Set.of(new Role(RoleName.ROLE_ADMIN)) : Set.of(new Role(RoleName.ROLE_USER));
+
 		User user = User.builder()
 			.pipitId(signUpRequest.getPipitId())
 			.pipitPassword(encryptedPassword)
 			.portalId(signUpRequest.getPortalId())
-			.roles(Set.of(new Role(RoleName.ROLE_USER)))
+			.roles(roles)
 			.build();
 		userRepository.save(user);
 	}

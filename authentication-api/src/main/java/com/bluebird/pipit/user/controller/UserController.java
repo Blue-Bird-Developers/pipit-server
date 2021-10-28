@@ -26,7 +26,6 @@ public class UserController {
 	private final UserService userService;
 	private final PortalLoginCrawler portalLoginCrawler;
 
-
 	@ApiOperation(value = "숙명포털 인증", notes = "숙명포털에 로그인을 시도합니다.")
 	@PostMapping(value = "/portal")
 	public void portalAuth(@RequestBody PortalAuthRequest portalAuthRequest) {
@@ -38,7 +37,7 @@ public class UserController {
 	@PostMapping(value = "/signup")
 	public void signUp(@RequestBody SignUpRequest signUpRequest) {
 		if (signUpRequest.isPortalSuccess())
-			userService.signUp(signUpRequest);
+			userService.signUp(signUpRequest,false);
 		else
 			throw new RuntimeException("Portal authentication failed.");
 	}
