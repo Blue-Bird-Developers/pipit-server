@@ -76,7 +76,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 			.and()
 			.authorizeRequests()
 			.antMatchers("/user/id/find", "/user/login", "/user/logout", "/user/password/check",
-				"/user/password/reset", "/user/portal", "/user/signup", "/admin/*")
+				"/user/password/reset", "/user/portal", "/user/signup", "/user/delete", "/admin/*")
 			.permitAll()
 			.anyRequest()
 			.authenticated();
